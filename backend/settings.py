@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 # Your apps here:
 'starthere_app',
@@ -58,6 +62,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 ]
 
 ROOT_URLCONF = 'config.urls'
