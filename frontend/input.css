@@ -1,0 +1,59 @@
+/* src/input.css */
+@import "tailwindcss";
+
+/* You can define your theme directly here in v4 */
+
+@theme: { 
+    extend: { 
+        fontFamily: { 
+            'sans': ['Inter', 'system-ui', 'sans-serif'], 
+            'mono': ['JetBrains Mono', 'monospace'], },
+         colors: { 
+            // Brand Colors 
+            brand: { 
+                plum: '#a855f7', 
+                mahogany: '#c2410c', 
+                papyrus: '#f59e0b', }, 
+            // Primary Scale (Plum) 
+            primary: { 
+                50: '#faf7ff', 
+                100: '#f3ebff', 
+                200: '#e9d5ff', 
+                300: '#d8b4fe', 
+                400: '#c084fc', 
+                500: '#a855f7', 
+                600: '#9333ea', 
+                700: '#7c2d12', 
+                800: '#6b21a8', 
+                900: '#581c87', }, 
+            // Secondary Scale (Mahogany) 
+            secondary: { 
+                50: '#fef7f0', 
+                100: '#feecdc', 
+                200: '#fed4b8', 
+                300: '#fdba8c', 
+                400: '#ff8a4c', 
+                500: '#c2410c', 
+                600: '#9a3412', 
+                700: '#7c2d12', 
+                800: '#652b19', 
+                900: '#532917', }, 
+            // Accent Scale (Papyrus) 
+            accent: { 
+                50: '#fffef7', 
+                100: '#fffbeb', 
+                200: '#fef3c7', 
+                300: '#fde68a', 
+                400: '#fcd34d', 
+                500: '#f59e0b', 
+                600: '#d97706', 
+                700: '#b45309', 
+                800: '#92400e', 
+                900: '#78350f', }, 
+            // Semantic Colors 
+            success: '#22c55e', 
+            warning: '#f59e0b', 
+            error: '#c2410c', 
+            info: '#3b82f6', }, 
+        }, 
+    };

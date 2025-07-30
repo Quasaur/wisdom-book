@@ -38,33 +38,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
-
-# Your apps here:
-'starthere_app',
-'neo4j_app',
-'graph_app',
-'topics_app',
-'thoughts_app',
-'quotes_app',
-'passages_app',
-'tags_app',
-'donate_app',
+    'corsheaders',
+    
+    # Your apps here:
+    'starthere_app',
+    'neo4j_app',
+    'graph_app',
+    'topics_app',
+    'thoughts_app',
+    'quotes_app',
+    'passages_app',
+    'tags_app',
+    'donate_app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -139,6 +135,25 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Neo4j Configuration
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+NEO4J_URI = os.getenv('NEO4J_URI', 'neo4j+s://cf81ef03.databases.neo4j.io')
+NEO4J_USERNAME = os.getenv('NEO4J_USERNAME', 'neo4j')
+NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD', '')
+NEO4J_DATABASE = os.getenv('NEO4J_DATABASE', 'neo4j')
+
 # Update database settings to use Neo4j via `neomodel`
-NEOMODEL_NEO4J_BOLT_URL = 'neo4j+s://cf81ef03.databases.neo4j.io'
+NEOMODEL_NEO4J_BOLT_URL = NEO4J_URI
 NEOMODEL_ENCRYPTED_CONNECTION = True
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
