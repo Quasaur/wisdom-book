@@ -1,2 +1,154 @@
- # Secret files
-    *.env
+# Root .gitignore for wisdom-book
+# Consolidates ignores for Python backend + JS/React frontend and common tooling
+
+###############
+# Secrets
+###############
+# Never commit real environment variable files
+*.env
+*.env.*
+!.env.example
+
+###############
+# OS / Editor cruft
+###############
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.nfs*
+.idea/
+.vscode/
+*.code-workspace
+*.iml
+*.orig
+
+###############
+# General build / packaging artifacts
+###############
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+wheelhouse/
+site/
+
+###############
+# Python bytecode & caches
+###############
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+###############
+# Python virtual environments & tools
+###############
+.venv/
+venv/
+env/
+.virtualenv/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.pytest_cache/
+.mypy_cache/
+.pybuilder/
+.pyre/
+.pytype/
+coverage/
+htmlcov/
+.cache/
+
+###############
+# Node / Frontend (React)
+###############
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+frontend/build/
+frontend/coverage/
+# If you ever create a top-level node project:
+node_modules/
+.pnp
+.pnp.js
+
+###############
+# Logs & runtime generated data
+###############
+logs/
+*.log
+log/
+/tmp/
+tmp/
+*.pid
+*.seed
+*.pid.lock
+
+###############
+# Databases / storage
+###############
+*.sqlite3
+*.db
+*.db-journal
+
+###############
+# Testing outputs
+###############
+.jest/**
+pytestdebug.log
+
+###############
+# Transpiled / bundled assets
+###############
+*.map
+
+###############
+# Coverage / reports (some tools write here)
+###############
+.coverage
+.coverage.*
+nyc_output/
+
+###############
+# Environment / tool specific
+###############
+.envrc
+.direnv/
+.sass-cache/
+
+###############
+# Temporary & lock files (keep package manager lockfiles you want tracked)
+###############
+*.lock-wscript
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+###############
+# Local docs build (if using Sphinx or similar)
+###############
+_docs/
+_doc_build/
+builddocs/
+
+###############
+# Optional: ignore local backups
+###############
+*.bak
+*.tmp
+*.temp
+
+###############
+# Ignore macOS temporary resource forks
+###############
+._*
+
+###############
+# END OF FILE
