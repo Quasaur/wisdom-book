@@ -21,7 +21,7 @@ The Django apps developed in the project will be named:
 
 - starthere_app (for the Home page)
 neo4j_app (a backend app for querying the AuraDB; this app will have no views of its own, but will supply AuraDB data to the - other apps)
-graphview_app (for displaying a D3.js view of the entire contents - of the AuraDB; will be displayed on the React side panel menu)
+graph_app (for displaying a D3.js view of the entire contents - of the AuraDB; will be displayed on the React side panel menu)
 topics_app (for accessing and displaying the TOPIC nodes in the - AuraDB; will be displayed on the React side panel menu)
 thoughts_app (for accessing and displaying the THOUGHT nodes in - the AuraDB; will be displayed on the React side panel menu)
 quotes_app (for accessing and displaying the QUOTE nodes in the - AuraDB; will be displayed on the React side panel menu)
@@ -114,7 +114,7 @@ If clarifications are required before coding, stop after section 1 and await inp
 ---
 
 ## 5. Backend (Django + Neo4j AuraDB)
-
+- Enforce single venv location (.venv at backend folder root).
 - Use official neo4j Python driver with `neo4j+s://` for Aura.
 - Environment variables (document in `.env.example`):
   - NEO4J_URI
