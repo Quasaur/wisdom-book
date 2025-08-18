@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # TODO: include app API routers/endpoints as they are created.
+    path("api/neo4j/", include("neo4j_app.urls")),
 ]

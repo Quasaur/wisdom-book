@@ -304,3 +304,176 @@ git diff --cached --name-only
 git rebase --continue
 git push origin main
 ```
+
+## Removing a Stray / Duplicate Virtual Environment (e.g. `envwisdom`)
+
+If you accidentally created multiple virtual environments (e.g. `envwisdom` and `backend/.venv`), keep only one to avoid version mismatch errors in scripts.
+
+### 1. Detect active interpreter
+```bash
+which python
+python -c "import sys; print(sys.prefix)"
+```
+If it shows the unwanted folder (`envwisdom`), deactivate:
+```bash
+deactivate 2>/dev/null || true
+```
+
+### 2. Activate the canonical env
+(Your convention: backend/.venv)
+```bash
+source backend/.venv/bin/activate
+```
+
+### 3. Remove the duplicate safely
+```bash
+rm -rf envwisdom
+```
+(Ensure you are in the project root before running.)
+
+### 4. Add ignore patterns (if not already)
+Top-level `.gitignore` should include:
+```
+/envwisdom
+/.venv
+```
+
+### 5. Re-verify tooling
+```bash
+which python
+python -V
+python backend/scripts/verify_requirements.py --debug
+```
+
+### 6. Clean stale bytecode (optional)
+```bash
+find . -name '__pycache__' -prune -exec rm -rf {} +
+```
+
+### 7. Commit housekeeping (if `.gitignore` changed)
+```bash
+git add .gitignore
+git commit -m "chore: remove stray envwisdom virtualenv and enforce single venv"
+```
+
+Result: A single authoritative environment prevents false “package missing” or version mismatch reports.
+
+## Troubleshooting: `which python` -> "python not found"
+
+Modern macOS no longer ships `python` (only `python3`). Fix:
+
+### 1. Check python3
+```bash
+which python3 || echo "python3 missing"
+python3 -V
+```
+
+### 2. (Re)create / activate venv
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+which python
+python -V
+```
+Expected: path ends with `backend/.venv/bin/python`.
+
+### 3. If `python3` missing install via Homebrew
+```bash
+brew install python
+hash -r
+which python3
+```
+
+### 4. Optional convenience alias
+```bash
+echo 'alias python=python3' >> ~/.zshrc
+exec $SHELL
+```
+
+### 5. Verify packages
+```bash
+pip install -r backend/requirements.txt  # run from repo root if venv already active
+python backend/scripts/verify_requirements.py --debug
+```
+
+### 6. Common pitfalls
+- Forgot to activate venv in a new terminal.
+- Removed venv directory; recreate as above.
+- Using a different shell session (VSCode integrated vs system Terminal).
+
+Result: `python` resolves inside the virtual environment and project scripts function correctly.
+
+### Troubleshooting: `which python3` shows `/opt/homebrew/bin/python3` (system interpreter)
+
+Cause: Your virtual environment (`backend/.venv`) is not active. When the venv is active the path should end with:
+```
+.../backend/.venv/bin/python3
+```
+
+Fix:
+
+```bash
+# From repo root (ensure backend/.venv exists)
+ls backend/.venv || python3 -m venv backend/.venv
+
+# Activate it
+source backend/.venv/bin/activate
+
+# Verify now
+which python3
+python3 -V
+```
+
+If `which python3` still shows `/opt/homebrew/bin/python3`:
+1. You may be in a different shell tab – activate again.
+2. Your shell rc file re-aliases python – temporarily run the full path:
+   `source backend/.venv/bin/activate && command -v python3`
+3. Fish shell users: `source backend/.venv/bin/activate.fish`
+
+Install dependencies (inside venv):
+```bash
+pip install -r backend/requirements.txt
+python backend/scripts/verify_requirements.py --debug
+```
+
+Optional helper (adds auto-activation alias):
+```bash
+echo 'cd() { builtin cd "$@"; if [ -f backend/.venv/bin/activate ]; then source backend/.venv/bin/activate >/dev/null 2>&1 || true; fi; }' >> ~/.zshrc
+exec $SHELL
+```
+
+Deactivate when done:
+```bash
+deactivate
+```
+
+### Fixing Django IndentationError in neo4j_app/urls.py During Automation
+
+If the setup script fails at "Django system check" with:
+```
+IndentationError: unexpected indent (neo4j_app/urls.py, line ...)
+```
+Cause: malformed `neo4j_app/urls.py` (bad indent or stale route pointing to `views.ItemDetailView`).
+
+Fix:
+1. Open `backend/neo4j_app/urls.py`
+2. Replace contents with:
+```python
+from django.urls import path
+from .api import HealthView, TopicsView, SearchView, ItemDetailView
+
+app_name = "neo4j_app"
+urlpatterns = [
+    path("health/", HealthView.as_view(), name="health"),
+    path("topics/", TopicsView.as_view(), name="topics"),
+    path("search/", SearchView.as_view(), name="search"),
+    path("items/<str:item_type>/<str:item_id>/", ItemDetailView.as_view(), name="item-detail"),
+]
+```
+3. Ensure `ItemDetailView` exists in `backend/neo4j_app/api.py`.
+4. Re-run:
+```bash
+bash scripts/full_setup_and_check.sh
+```
+If earlier steps failed the script now skips server start and exits with a summary; fix listed errors then rerun.
