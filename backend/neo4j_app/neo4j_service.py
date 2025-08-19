@@ -11,6 +11,7 @@ from neo4j.exceptions import (
     SessionExpired,
     TransientError,
 )
+from .middleware.query_logger import log_query
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +57,13 @@ class Neo4jService:
     def _open_session(self) -> Session:
         return self.get_driver().session(database=NEO4J_DATABASE)
 
+    @log_query
     def run_query(
         self,
         cypher: str,
         params: Optional[Dict[str, Any]] = None,
         *,
+        query_name: str = "unnamed_query",
         write: bool = False,
         max_retries: int = 3,
         retry_backoff: float = 0.25,
@@ -68,6 +71,20 @@ class Neo4jService:
         """
         Execute a Cypher query.
         Retries only safe (non-writing) operations on transient errors.
+        
+        Args:
+            cypher: The Cypher query to execute
+            params: Query parameters
+            query_name: Name of query for better error messages
+            write: Is this a write operation? (no retries if True)
+            max_retries: Maximum retry attempts
+            retry_backoff: Backoff multiplier for retries
+            
+        Returns:
+            List of result records as dictionaries
+            
+        Raises:
+            Neo4jQueryError: Wrapper with enhanced context for all Neo4j errors
         """
         attempt = 0
         while True:
@@ -77,22 +94,119 @@ class Neo4jService:
                     return [r.data() for r in result]
             except (SessionExpired, TransientError, ServiceUnavailable) as e:
                 if write:
-                    logger.error("Write query failed (no retry): %s", e)
-                    raise
+                    logger.error("Write query %r failed (no retry): %s", query_name, e)
+                    raise Neo4jQueryError(f"Write operation failed: {e}", 
+                                        query_name=query_name, 
+                                        cypher=cypher,
+                                        params=params) from e
                 attempt += 1
                 if attempt > max_retries:
-                    logger.error("Exceeded retries for query: %s", cypher)
-                    raise
+                    logger.error("Exceeded retries for query %r: %s", query_name, cypher)
+                    raise Neo4jQueryError(f"Max retries exceeded: {e}", 
+                                        query_name=query_name, 
+                                        cypher=cypher,
+                                        params=params) from e
                 sleep_for = retry_backoff * (2 ** (attempt - 1))
-                logger.warning("Transient error (%s). Retry %d/%d in %.2fs",
-                               e.__class__.__name__, attempt, max_retries, sleep_for)
+                logger.warning("Transient error (%s) in query %r. Retry %d/%d in %.2fs",
+                               e.__class__.__name__, query_name, attempt, max_retries, sleep_for)
                 time.sleep(sleep_for)
-            except AuthError:
-                logger.exception("Authentication failed to Neo4j")
-                raise
-            except Exception:
-                logger.exception("Unexpected Neo4j error")
-                raise
+            except neo4j.exceptions.CypherSyntaxError as e:
+                # Extract line and column from error message
+                error_msg = str(e)
+                syntax_guidance = self._get_syntax_guidance(error_msg)
+                
+                logger.error("Cypher syntax error in query %r: %s\n%s", 
+                           query_name, e, syntax_guidance)
+                
+                raise Neo4jQueryError(
+                    f"Syntax error: {e}",
+                    query_name=query_name,
+                    cypher=cypher,
+                    params=params,
+                    guidance=syntax_guidance
+                ) from e
+            except AuthError as e:
+                logger.exception("Authentication failed to Neo4j during query %r", query_name)
+                raise Neo4jQueryError("Authentication failed", 
+                                    query_name=query_name, 
+                                    cypher=cypher) from e
+            except Exception as e:
+                logger.exception("Unexpected Neo4j error in query %r", query_name)
+                raise Neo4jQueryError(f"Unexpected error: {e}", 
+                                    query_name=query_name, 
+                                    cypher=cypher,
+                                    params=params) from e
+
+    def _get_syntax_guidance(self, error_msg: str) -> str:
+        """Provide guidance for common syntax errors based on error message"""
+        guidance = []
+        
+        # Add specific guidance based on error patterns
+        if "exists(variable.property)" in error_msg:
+            guidance.append(
+                "SYNTAX UPDATE REQUIRED: Replace 'exists(n.property)' with 'n.property IS NOT NULL'\n"
+                "Example: WHERE exists(n.name) -> WHERE n.name IS NOT NULL"
+            )
+        
+        if "STARTS WITH" in error_msg or "ENDS WITH" in error_msg or "CONTAINS" in error_msg:
+            guidance.append(
+                "Check case sensitivity in string operations (STARTS WITH, ENDS WITH, CONTAINS).\n"
+                "These are case-sensitive by default. Use toLower() for case-insensitive matching."
+            )
+            
+        if "MATCH (n)-[r]->" in error_msg:
+            guidance.append(
+                "Check relationship direction. If not specific, use (n)-[r]-(m) for undirected matching."
+            )
+            
+        if "Error 42I52" in error_msg:
+            guidance.append(
+                "Neo4j 5.x compatibility issue: Ensure your Cypher syntax is compatible with Neo4j 5+."
+            )
+            
+        # Add general guidance if no specific matches
+        if not guidance:
+            guidance.append(
+                "General tips:\n"
+                "- Check property names and case sensitivity\n"
+                "- Verify all parentheses are balanced\n"
+                "- Use parametrized queries instead of string concatenation\n"
+                "- Refer to Neo4j 5.x Cypher documentation for latest syntax"
+            )
+            
+        return "\n".join(guidance)
+
+# Add a custom exception for Neo4j query errors with context
+class Neo4jQueryError(Exception):
+    """Enhanced exception for Neo4j queries with context and guidance"""
+    
+    def __init__(self, message: str, query_name: str = "unnamed", 
+                 cypher: Optional[str] = None, params: Optional[Dict] = None,
+                 guidance: Optional[str] = None):
+        self.query_name = query_name
+        self.cypher = cypher
+        self.params = params
+        self.guidance = guidance
+        
+        # Build detailed message
+        details = [message]
+        details.append(f"Query: {query_name}")
+        
+        if cypher:
+            # Format the query for better readability
+            formatted_query = "\n    ".join(cypher.strip().split("\n"))
+            details.append(f"Cypher:\n    {formatted_query}")
+            
+        if params:
+            # Redact potential sensitive parameters
+            safe_params = {k: (v if k.lower() not in ('password', 'secret', 'token', 'key') else '[REDACTED]') 
+                          for k, v in params.items()}
+            details.append(f"Params: {safe_params}")
+            
+        if guidance:
+            details.append(f"Guidance:\n{guidance}")
+            
+        super().__init__("\n".join(details))
 
     # ---------- Public domain methods ----------
 
@@ -107,7 +221,10 @@ class Neo4jService:
         """
         Return topics plus total count (for pagination).
         """
-        count_result = self.run_query("MATCH (t:TOPIC) RETURN count(t) AS total")
+        count_result = self.run_query(
+            "MATCH (t:TOPIC) RETURN count(t) AS total",
+            query_name="topics_count"
+        )
         total = count_result[0]["total"] if count_result else 0
         data = self.run_query(
             """
@@ -117,6 +234,7 @@ class Neo4jService:
             SKIP $skip LIMIT $limit
             """,
             {"skip": skip, "limit": limit},
+            query_name="topics_list"
         )
         return data, total
 
@@ -142,6 +260,7 @@ class Neo4jService:
             RETURN count(n) AS total
             """,
             param,
+            query_name="search_content_count"
         )
         total = count_res[0]["total"] if count_res else 0
         data = self.run_query(
@@ -160,6 +279,7 @@ class Neo4jService:
             SKIP $skip LIMIT $limit
             """,
             {"q": q, "skip": skip, "limit": limit},
+            query_name="search_content_results"
         )
         return data, total
 

@@ -2,7 +2,7 @@ from typing import Any, Dict
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework import status
-from .neo4j_service import neo4j_service
+from .neo4j_service import neo4j_service, Neo4jQueryError
 from django.utils.text import slugify
 
 def envelope(data, *, total=None, skip=0, limit=25, extra_meta: Dict[str, Any] | None = None):
@@ -13,9 +13,13 @@ def envelope(data, *, total=None, skip=0, limit=25, extra_meta: Dict[str, Any] |
         meta.update(extra_meta)
     return {"data": data, "meta": meta}
 
-def error_response(code: str, message: str, http_status: int):
+def error_response(code: str, message: str, http_status: int, details: Dict[str, Any] = None):
+    error_body = {"code": code, "message": message}
+    if details:
+        error_body.update(details)
+    
     return JsonResponse(
-        {"error": {"code": code, "message": message}},
+        {"error": error_body},
         status=http_status,
     )
 
@@ -60,6 +64,18 @@ class SearchView(APIView):
         try:
             results, total = neo4j_service.search_content(q, skip=skip, limit=limit)
             return JsonResponse(envelope(results, total=total, skip=skip, limit=limit))
+        except Neo4jQueryError as e:
+            # Enhanced error handling with detailed error response
+            logger.error("Neo4j query error: %s", e)
+            return error_response(
+                "NEO4J_QUERY_ERROR",
+                f"Search failed: {str(e).split('\n')[0]}",  # Just the main message, not the details
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                details={
+                    "query": e.query_name,
+                    "guidance": e.guidance
+                } if hasattr(e, 'guidance') and e.guidance else None
+            )
         except Exception as e:
             return error_response("NEO4J_ERROR", f"Search failed: {e}", status.HTTP_500_INTERNAL_SERVER_ERROR)
 

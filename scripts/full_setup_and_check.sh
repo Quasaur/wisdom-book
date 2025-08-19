@@ -131,7 +131,12 @@ wait_for_server() {
     sleep 0.4
   done
   if [ "${ok}" -ne 1 ]; then
-    fail "Server not ready after $((retries*0.4))s (see ${SERVER_LOG})"
+    # Fix: Bash can't do floating point math in $(())
+    # Changed to use integer math and express as tenths of seconds
+    local wait_tenths=$((retries * 4))
+    local wait_seconds=$((wait_tenths / 10))
+    local wait_remainder=$((wait_tenths % 10))
+    fail "Server not ready after ${wait_seconds}.${wait_remainder}s (see ${SERVER_LOG})"
   else
     log "Server is responding."
   fi

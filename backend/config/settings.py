@@ -41,6 +41,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'neo4j_app.middleware.QueryLoggerMiddleware',
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -103,4 +104,15 @@ CORS_ALLOWED_ORIGINS = [
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 25,
+}
+
+# Neo4j Query Logging Configuration
+NEO4J_QUERY_LOGGING = {
+    'slow_query_threshold_ms': 100,  # Log queries taking longer than 100ms
+    'log_all_queries': False,        # When True, log all queries regardless of time
+    'log_to_file': True,             # Whether to log to a separate file
+    'log_file': 'logs/neo4j_slow_queries.log',  # Log file path (relative to project root)
+    'include_params': True,          # Include query parameters in log
+    'include_results': False,        # Include result summary in log
+    'redact_fields': ['password', 'token', 'secret', 'key'],  # Fields to redact in params
 }
