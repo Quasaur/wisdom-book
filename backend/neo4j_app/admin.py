@@ -16,7 +16,30 @@ from .middleware.query_logger import get_slow_query_stats
 from .models import VirtualLogEntry
 
 
-class Neo4jAdmin(admin.ModelAdmin):
+# Create a proper placeholder model
+class Neo4jLogEntry:
+    """Virtual model for Neo4j logs"""
+    id = None
+    
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+    
+    @staticmethod
+    def _meta():
+        return type('_meta', (), {
+            'app_label': 'neo4j_app',
+            'model_name': 'neo4j_log',
+            'verbose_name': 'Neo4j Log',
+            'verbose_name_plural': 'Neo4j Logs',
+            'abstract': False,
+            'swapped': False,
+            'managed': False,
+        })
+
+
+# Modify the Neo4jAdmin class to inherit from admin.AdminSite
+class Neo4jAdmin(admin.AdminSite):
     # Virtual model admin - doesn't use a real model
     model = None
     
@@ -24,12 +47,13 @@ class Neo4jAdmin(admin.ModelAdmin):
     change_list_template = 'admin/neo4j_app/change_list.html'
     
     def get_urls(self):
+        from django.urls import path
         urls = super().get_urls()
         custom_urls = [
-            path('dashboard/', self.admin_site.admin_view(self.dashboard_view), name='neo4j_dashboard'),
-            path('logs/', self.admin_site.admin_view(self.logs_view), name='neo4j_logs'),
-            path('query/<str:query_name>/', self.admin_site.admin_view(self.query_detail_view), name='neo4j_query_detail'),
-            path('api/stats/', self.admin_site.admin_view(self.api_stats), name='neo4j_api_stats'),
+            path('dashboard/', self.admin_view(self.dashboard_view), name='neo4j_dashboard'),
+            path('logs/', self.admin_view(self.logs_view), name='neo4j_logs'),
+            path('query/<str:query_name>/', self.admin_view(self.query_detail_view), name='neo4j_query_detail'),
+            path('api/stats/', self.admin_view(self.api_stats), name='neo4j_api_stats'),
         ]
         return custom_urls + urls
     
@@ -306,9 +330,22 @@ class Neo4jAdmin(admin.ModelAdmin):
         return False
 
 
-# Register with custom name
-admin.site.register([object], Neo4jAdmin)
-admin.site._registry[object]._meta.app_label = 'neo4j_app'
-admin.site._registry[object]._meta.model_name = 'neo4j_log'
-admin.site._registry[object]._meta.verbose_name = 'Neo4j Log'
-admin.site._registry[object]._meta.verbose_name_plural = 'Neo4j Logs'
+# Register the admin site
+neo4j_admin = Neo4jAdmin(name='neo4j_admin')
+admin.site.register_view = getattr(admin.site, 'register_view', None)
+if admin.site.register_view:
+    admin.site.register_view('neo4j/dashboard/', neo4j_admin.dashboard_view, 'Neo4j Dashboard')
+else:
+    # Add to urls directly
+    from django.urls import path
+    original_get_urls = admin.site.get_urls
+    def get_urls():
+        urls = original_get_urls()
+        neo4j_urls = [
+            path('neo4j/dashboard/', admin.site.admin_view(neo4j_admin.dashboard_view), name='neo4j_dashboard'),
+            path('neo4j/logs/', admin.site.admin_view(neo4j_admin.logs_view), name='neo4j_logs'),
+            path('neo4j/query/<str:query_name>/', admin.site.admin_view(neo4j_admin.query_detail_view), name='neo4j_query_detail'),
+            path('neo4j/api/stats/', admin.site.admin_view(neo4j_admin.api_stats), name='neo4j_api_stats'),
+        ]
+        return urls + neo4j_urls
+    admin.site.get_urls = get_urls
