@@ -285,32 +285,78 @@ class Neo4jService:
         )
         return data, total
 
-    def get_graph_data(self, limit=50):
-        """
-        Get a subset of nodes and relationships for visualization.
-        Returns data formatted for D3.js force-directed graph.
-        """
-        cypher = """
-        MATCH (n)
-        WHERE any(label IN labels(n) WHERE label IN ['TOPIC', 'THOUGHT', 'QUOTE', 'PASSAGE'])
-        WITH n LIMIT $limit
-        OPTIONAL MATCH (n)-[r]->(m)
-        WHERE any(label IN labels(m) WHERE label IN ['TOPIC', 'THOUGHT', 'QUOTE', 'PASSAGE'])
-        WITH collect(DISTINCT {
-            id: id(n),
-            labels: labels(n),
-            name: coalesce(n.name, n.alias, ''),
-            type: head(labels(n))
-        }) AS nodes,
-        collect(DISTINCT {
-            source: id(n),
-            target: id(m),
-            type: type(r)
-        }) AS relationships
-        RETURN {nodes: nodes, relationships: relationships} AS graph
-        """
-        result = self.run_query(cypher, {"limit": limit})
-        return result[0]["graph"] if result else {"nodes": [], "relationships": []}
+    def get_graph_data(self, node_id=None, node_type=None):
+        """Get graph data for visualization"""
+        if node_id and node_type:
+            # Get focused graph around specific node
+            query = f"""
+            MATCH (center:{node_type} {{name: $node_id}})
+            OPTIONAL MATCH (center)-[r1]-(connected)
+            OPTIONAL MATCH (connected)-[r2]-(secondLevel)
+            WHERE distance(center, secondLevel) <= 2
+            WITH collect(DISTINCT center) + collect(DISTINCT connected) + collect(DISTINCT secondLevel) as nodes,
+                 collect(DISTINCT r1) + collect(DISTINCT r2) as relationships
+            UNWIND nodes as n
+            UNWIND relationships as r
+            RETURN collect(DISTINCT {{
+                id: n.name, 
+                title: n.alias, 
+                type: labels(n)[0],
+                level: n.level,
+                tags: n.tags,
+                group: CASE labels(n)[0]
+                    WHEN 'TOPIC' THEN 1
+                    WHEN 'THOUGHT' THEN 2
+                    WHEN 'QUOTE' THEN 3
+                    WHEN 'PASSAGE' THEN 4
+                    WHEN 'CONTENT' THEN 5
+                    WHEN 'DESCRIPTION' THEN 6
+                    ELSE 7
+                END
+            }}) as nodes,
+            collect(DISTINCT {{
+                source: startNode(r).name,
+                target: endNode(r).name,
+                type: type(r)
+            }}) as links
+            """
+            result = self.run_query(query, {"node_id": node_id})
+            return result[0] if result else {"nodes": [], "links": []}
+        else:
+            # Get overall graph structure
+            query = """
+            MATCH (n)
+            WHERE n:TOPIC OR n:THOUGHT OR n:QUOTE OR n:PASSAGE OR n:CONTENT OR n:DESCRIPTION
+            OPTIONAL MATCH (n)-[r]-(m)
+            WHERE m:TOPIC OR m:THOUGHT OR m:QUOTE OR m:PASSAGE OR m:CONTENT OR m:DESCRIPTION
+            WITH collect(DISTINCT n) + collect(DISTINCT m) as allNodes, collect(DISTINCT r) as allRels
+            UNWIND allNodes as node
+            UNWIND allRels as rel
+            RETURN collect(DISTINCT {
+                id: node.name, 
+                title: node.alias, 
+                type: labels(node)[0],
+                level: node.level,
+                tags: node.tags,
+                group: CASE labels(node)[0]
+                    WHEN 'TOPIC' THEN 1
+                    WHEN 'THOUGHT' THEN 2
+                    WHEN 'QUOTE' THEN 3
+                    WHEN 'PASSAGE' THEN 4
+                    WHEN 'CONTENT' THEN 5
+                    WHEN 'DESCRIPTION' THEN 6
+                    ELSE 7
+                END
+            }) as nodes,
+            collect(DISTINCT {
+                source: startNode(rel).name,
+                target: endNode(rel).name,
+                type: type(rel)
+            }) as links
+            LIMIT 500
+            """
+            result = self.run_query(query)
+            return result[0] if result else {"nodes": [], "links": []}
     
     def get_tags(self):
         """Get all tags with usage count"""

@@ -4,4 +4,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/neo4j/", include("neo4j_app.urls")),
+    path("graph/", include("graphview_app.urls")),
 ]

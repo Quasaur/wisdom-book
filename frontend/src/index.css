@@ -16,7 +16,7 @@
   }
 
   p {
-    @apply text-base leading-relaxed text-text-secondary mb-6;
+    @apply text-base leading-relaxed text-text-secondary mb-6 opacity-75;
   }
 
   a {
@@ -30,7 +30,7 @@
 
 @layer components {
   .card {
-    @apply bg-card-bg rounded-2xl p-12 shadow-md mb-6;
+    @apply bg-card-bg rounded-2xl p-12 shadow-md mb-6 border border-yellow-400;
   }
 }
 

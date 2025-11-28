@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const location = useLocation();
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
@@ -32,33 +34,33 @@ const Sidebar: React.FC = () => {
             </div>
 
             <nav className="flex-1 py-4 px-3 overflow-y-auto">
-                <NavItem href="#" active icon={<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />} label="Start Here!" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />} label="Graph View" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" />} label="Topics" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z" />} label="Thoughts" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />} label="Quotes" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />} label="Bible" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />} label="Tags" isCollapsed={isCollapsed} />
-                <NavItem href="#" icon={<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />} label="Donate" isCollapsed={isCollapsed} />
+                <NavItem to="/" active={location.pathname === '/'} icon={<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />} label="Start Here!" isCollapsed={isCollapsed} />
+                <NavItem to="/graph" active={location.pathname === '/graph'} icon={<path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />} label="Graph View" isCollapsed={isCollapsed} />
+                <NavItem to="/topics" active={location.pathname === '/topics'} icon={<path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" />} label="Topics" isCollapsed={isCollapsed} />
+                <NavItem to="/thoughts" active={location.pathname === '/thoughts'} icon={<path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z" />} label="Thoughts" isCollapsed={isCollapsed} />
+                <NavItem to="/quotes" active={location.pathname === '/quotes'} icon={<path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />} label="Quotes" isCollapsed={isCollapsed} />
+                <NavItem to="/bible" active={location.pathname === '/bible'} icon={<path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />} label="Bible" isCollapsed={isCollapsed} />
+                <NavItem to="/tags" active={location.pathname === '/tags'} icon={<path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />} label="Tags" isCollapsed={isCollapsed} />
+                <NavItem to="/donate" active={location.pathname === '/donate'} icon={<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />} label="Donate" isCollapsed={isCollapsed} />
             </nav>
         </div>
     );
 };
 
 interface NavItemProps {
-    href: string;
+    to: string;
     icon: React.ReactNode;
     label: string;
     active?: boolean;
     isCollapsed: boolean;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ href, icon, label, active, isCollapsed }) => (
-    <a
-        href={href}
+const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active, isCollapsed }) => (
+    <Link
+        to={to}
         className={`flex items-center px-4 py-3 rounded-3xl cursor-pointer no-underline mb-1 transition-colors duration-200 whitespace-nowrap overflow-hidden ${active
-                ? 'bg-[#414b5c] text-accent font-medium'
-                : 'text-text-secondary hover:bg-accent-bg hover:text-text-primary'
+            ? 'bg-[#414b5c] text-accent font-medium'
+            : 'text-gray-300 hover:bg-accent-bg hover:text-text-primary'
             }`}
     >
         <div className="w-6 h-6 min-w-[24px] flex items-center justify-center">
@@ -72,7 +74,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon, label, active, isCollapse
         >
             {label}
         </span>
-    </a>
+    </Link>
 );
 
 export default Sidebar;
