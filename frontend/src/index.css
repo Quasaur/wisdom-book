@@ -7,8 +7,30 @@
     @apply bg-primary-bg text-text-primary h-screen overflow-hidden antialiased;
   }
 
+  h1 {
+    @apply text-4xl font-normal mb-4 leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-normal mt-8 mb-4 text-text-primary;
+  }
+
+  p {
+    @apply text-base leading-relaxed text-text-secondary mb-6;
+  }
+
+  a {
+    @apply text-accent no-underline hover:underline;
+  }
+
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card-bg rounded-2xl p-12 shadow-md mb-6;
   }
 }
 
