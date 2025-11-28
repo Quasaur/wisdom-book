@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     # Project apps
     "starthere_app",
     "neo4j_app",
-    "graph_app",      # corrected (was graphview_app)
+    "graphview_app",      # corrected (was graphview_app)
     "topics_app",
     "thoughts_app",
     "quotes_app",
@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'neo4j_app.middleware.QueryLoggerMiddleware',
 ]
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "wisdom_book.urls"
 
 TEMPLATES = [
     {
@@ -61,8 +61,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = "config.asgi.application"
+WSGI_APPLICATION = "wisdom_book.wsgi.application"
+ASGI_APPLICATION = "wisdom_book.asgi.application"
 
 DATABASES = {
     "default": {
