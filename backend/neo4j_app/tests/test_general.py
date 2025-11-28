@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
-from .neo4j_service import Neo4jService
+from ..neo4j_service import Neo4jService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class Neo4jConnectionTest(TestCase):
     def test_get_all_topics(self):
         """Test getting topics from Neo4j"""
         try:
-            topics = self.service.get_all_topics(limit=5)
+            topics, total = self.service.get_all_topics(limit=5)
             self.assertIsInstance(topics, list)
             logger.info(f"Successfully retrieved {len(topics)} topics")
         except Exception as e:
@@ -41,12 +41,23 @@ class Neo4jConnectionTest(TestCase):
     def test_search_content(self):
         """Test searching content"""
         try:
-            results = self.service.search_content("love", limit=5)
+            results, total = self.service.search_content("love", limit=5)
             self.assertIsInstance(results, list)
             logger.info(f"Search returned {len(results)} results")
         except Exception as e:
             logger.error(f"Search test failed: {e}")
             self.fail(f"Search test failed: {e}")
+
+    def test_get_items_by_tag(self):
+        """Test getting items by tag"""
+        try:
+            # This test assumes there might be items with 'Love' tag, or at least shouldn't crash
+            results = self.service.get_items_by_tag("Love", limit=5)
+            self.assertIsInstance(results, list)
+            logger.info(f"Get items by tag returned {len(results)} results")
+        except Exception as e:
+            logger.error(f"Get items by tag test failed: {e}")
+            self.fail(f"Get items by tag test failed: {e}")
 
 
 class Neo4jViewsTest(TestCase):
@@ -56,13 +67,13 @@ class Neo4jViewsTest(TestCase):
         """Test topics list API endpoint"""
         response = self.client.get('/api/neo4j/topics/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('results', response.json())
+        self.assertIn('data', response.json())
     
     def test_search_view(self):
         """Test search API endpoint"""
         response = self.client.get('/api/neo4j/search/?q=love')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('results', response.json())
+        self.assertIn('data', response.json())
     
     def test_search_view_no_query(self):
         """Test search API endpoint with no query"""

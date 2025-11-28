@@ -160,3 +160,14 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
+
+# Neo4j Query Logging Configuration
+NEO4J_QUERY_LOGGING = {
+    'slow_query_threshold_ms': 100,  # Log queries taking longer than 100ms
+    'log_all_queries': False,        # When True, log all queries regardless of time
+    'log_to_file': True,             # Whether to log to a separate file
+    'log_file': 'logs/neo4j_slow_queries.log',  # Log file path
+    'include_params': True,          # Include query parameters in log
+    'include_results': False,        # Include result summary in log
+    'redact_fields': ['password', 'token', 'secret', 'key'],  # Fields to redact
+}

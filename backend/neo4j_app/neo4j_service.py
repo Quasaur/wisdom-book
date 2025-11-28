@@ -20,6 +20,38 @@ NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
 NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
 
+# Add a custom exception for Neo4j query errors with context
+class Neo4jQueryError(Exception):
+    """Enhanced exception for Neo4j queries with context and guidance"""
+    
+    def __init__(self, message: str, query_name: str = "unnamed", 
+                 cypher: Optional[str] = None, params: Optional[Dict] = None,
+                 guidance: Optional[str] = None):
+        self.query_name = query_name
+        self.cypher = cypher
+        self.params = params
+        self.guidance = guidance
+        
+        # Build detailed message
+        details = [message]
+        details.append(f"Query: {query_name}")
+        
+        if cypher:
+            # Format the query for better readability
+            formatted_query = "\n    ".join(cypher.strip().split("\n"))
+            details.append(f"Cypher:\n    {formatted_query}")
+            
+        if params:
+            # Redact potential sensitive parameters
+            safe_params = {k: (v if k.lower() not in ('password', 'secret', 'token', 'key') else '[REDACTED]') 
+                          for k, v in params.items()}
+            details.append(f"Params: {safe_params}")
+            
+        if guidance:
+            details.append(f"Guidance:\n{guidance}")
+            
+        super().__init__("\n".join(details))
+
 class Neo4jService:
     """
     Lazy-initialized Neo4j driver wrapper with:
@@ -176,37 +208,7 @@ class Neo4jService:
             
         return "\n".join(guidance)
 
-# Add a custom exception for Neo4j query errors with context
-class Neo4jQueryError(Exception):
-    """Enhanced exception for Neo4j queries with context and guidance"""
-    
-    def __init__(self, message: str, query_name: str = "unnamed", 
-                 cypher: Optional[str] = None, params: Optional[Dict] = None,
-                 guidance: Optional[str] = None):
-        self.query_name = query_name
-        self.cypher = cypher
-        self.params = params
-        self.guidance = guidance
-        
-        # Build detailed message
-        details = [message]
-        details.append(f"Query: {query_name}")
-        
-        if cypher:
-            # Format the query for better readability
-            formatted_query = "\n    ".join(cypher.strip().split("\n"))
-            details.append(f"Cypher:\n    {formatted_query}")
-            
-        if params:
-            # Redact potential sensitive parameters
-            safe_params = {k: (v if k.lower() not in ('password', 'secret', 'token', 'key') else '[REDACTED]') 
-                          for k, v in params.items()}
-            details.append(f"Params: {safe_params}")
-            
-        if guidance:
-            details.append(f"Guidance:\n{guidance}")
-            
-        super().__init__("\n".join(details))
+
 
     # ---------- Public domain methods ----------
 
@@ -322,7 +324,7 @@ class Neo4jQueryError(Exception):
         query = """
         MATCH (item)
         WHERE item.tags IS NOT NULL AND $tag_name IN item.tags
-        AND (labels(item)[0] = 'TOPIC' OR labels(item)[0] = 'THOUGHT' OR labels(item)[0] = 'QUOTE' OR labels(item)[0] = 'PASSAGE')
+        AND any(l IN labels(item) WHERE l IN ['TOPIC', 'THOUGHT', 'QUOTE', 'PASSAGE'])
         OPTIONAL MATCH (item)-[:HAS_CONTENT]->(content:CONTENT)
         OPTIONAL MATCH (item)-[:HAS_DESCRIPTION]->(desc:DESCRIPTION)
         RETURN item.name as id, item.alias as title, 
