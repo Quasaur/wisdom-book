@@ -54,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         </svg>
                     </div>
                 </header>
-                <main className="flex-1 overflow-y-auto p-16 w-full box-border bg-content-bg">
+                <main className="flex-1 overflow-y-auto p-[60px] w-full box-border bg-content-bg">
                     {children}
                 </main>
                 <footer className="py-4 px-6 text-center text-text-secondary text-sm border-t border-border-color flex flex-col gap-2">

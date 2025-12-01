@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout';
 import GraphView from './components/GraphView';
@@ -12,7 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<StartHere />} />
           <Route path="/graph" element={<GraphView />} />
-          {/* Add other routes here as they are implemented */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </Router>
