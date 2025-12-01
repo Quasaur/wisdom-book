@@ -48,7 +48,7 @@ const StartHere: React.FC = () => {
             const headings = contentRef.current.querySelectorAll('h2');
             // Initialize TOC with the Welcome heading
             const newToc: TOCItem[] = [
-                { id: 'welcome', text: data.title }
+                { id: 'start-here-card', text: data.title }
             ];
 
             headings.forEach((heading, index) => {
@@ -83,9 +83,9 @@ const StartHere: React.FC = () => {
     }
 
     const SH_Card_01 = (
-        <div className="card !p-0 overflow-hidden w-[75%]">
+        <div id="start-here-card" className="card !p-0 overflow-hidden w-[75%]">
             <div className="text-center mb-4 p-4">
-                <h1 id="welcome" className="text-2xl font-bold">{data.title}</h1>
+                <h1 className="text-2xl font-bold">{data.title}</h1>
                 {data.subtitle && (
                     <h2 className="text-xl mt-2"><em>{data.subtitle}</em></h2>
                 )}
