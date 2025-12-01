@@ -59,7 +59,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active, isCollapsed 
     <Link
         to={to}
         className={`flex items-center px-4 py-3 rounded-3xl cursor-pointer no-underline mb-1 transition-colors duration-200 whitespace-nowrap overflow-hidden ${active
-            ? 'bg-[#414b5c] text-accent font-medium'
+            ? 'bg-[#414b5c] text-yellow-400 font-medium'
             : 'text-gray-300 hover:bg-accent-bg hover:text-text-primary'
             }`}
     >

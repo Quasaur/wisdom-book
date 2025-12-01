@@ -16,7 +16,7 @@
   }
 
   p {
-    @apply text-base leading-relaxed text-text-secondary mb-6 opacity-75;
+    @apply text-base leading-relaxed text-text-secondary mb-6;
   }
 
   a {

@@ -11,7 +11,7 @@ module.exports = {
         'sidebar-bg': '#2d2e31',
         'card-bg': '#303134',
         'text-primary': '#e8eaed',
-        'text-secondary': '#9aa0a6',
+        'text-secondary': '#d2d5d9',
         'accent': '#8ab4f8',
         'accent-bg': '#3c4043',
         'border-color': '#3c4043',

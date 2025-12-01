@@ -88,7 +88,7 @@ const GraphView: React.FC = () => {
             .selectAll('circle')
             .data(data.nodes)
             .join('circle')
-            .attr('r', (d: Node) => Math.sqrt((d.size || 10) * 3))
+            .attr('r', (d: Node) => Math.sqrt((d.size || 10) * 3) * 2) // Doubled size
             .attr('fill', (d: Node) => colorScale[d.type] || '#666')
             .call(d3.drag<SVGCircleElement, Node>()
                 .on('start', dragstarted)
@@ -147,16 +147,49 @@ const GraphView: React.FC = () => {
             event.subject.fy = null;
         }
 
+        // Zoom behavior
+        const zoom = d3.zoom<SVGSVGElement, unknown>()
+            .scaleExtent([0.1, 4])
+            .filter((event) => {
+                // Only allow zoom with Ctrl/Cmd key or double click
+                // Allow panning with left click (default)
+                return (!event.ctrlKey && !event.metaKey && event.type === 'wheel') ? false : !event.button;
+            })
+            .on('zoom', (event) => {
+                svg.selectAll('g').attr('transform', event.transform);
+            });
+
+        svg.call(zoom);
+
+        // Reset Zoom Handler
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Check for Alt/Option + R (using code is safer for layouts)
+            if (event.altKey && event.code === 'KeyR') {
+                event.preventDefault();
+                console.log('Resetting zoom...');
+                if (svgRef.current) {
+                    d3.select(svgRef.current)
+                        .transition()
+                        .duration(750)
+                        .call(zoom.transform, d3.zoomIdentity);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
         return () => {
             simulation.stop();
+            svg.on('.zoom', null);
+            window.removeEventListener('keydown', handleKeyDown);
         };
     }, [data]);
 
     return (
-        <div className="container mx-auto p-4 bg-gray-900 text-gray-100 rounded-lg shadow-lg">
+        <div className="card container mx-auto text-gray-100 !p-4">
             <div className="text-center mb-4">
                 <h1 className="text-2xl font-bold">Knowledge Graph Visualization</h1>
-                <p className="text-gray-400">Interactive visualization of connections between topics, thoughts, quotes, and passages</p>
+                <h2 className="text-xl mt-2">Interactive visualization of connections between topics, thoughts, quotes, and passages</h2>
             </div>
 
             <div className="flex justify-between items-center mb-4">
