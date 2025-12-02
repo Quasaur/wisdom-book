@@ -4,6 +4,7 @@ import './App.css';
 import Layout from './components/Layout';
 import GraphView from './components/GraphView';
 import StartHere from './components/StartHere';
+import Topics from './components/Topics';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<StartHere />} />
+          <Route path="/topics" element={<Topics />} />
           <Route path="/graph" element={<GraphView />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

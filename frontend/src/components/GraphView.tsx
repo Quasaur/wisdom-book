@@ -45,8 +45,20 @@ const GraphView: React.FC = () => {
             try {
                 const response = await axios.get('/graph/api/data/');
                 // Transform links to match D3 expectation (source/target as IDs initially)
-                const nodes = response.data.nodes.map((n: any) => ({ ...n }));
-                const links = response.data.links.map((l: any) => ({ ...l }));
+                // Transform links to match D3 expectation (source/target as IDs initially)
+                const nodes = response.data.nodes.map((n: any) => ({
+                    ...n,
+                    name: n.name || n.title || n.id // Fallback for name
+                }));
+
+                // Create a set of node IDs for quick lookup
+                const nodeIds = new Set(nodes.map((n: any) => n.id));
+
+                // Filter links to ensure source and target exist
+                const links = response.data.links
+                    .filter((l: any) => nodeIds.has(l.source) && nodeIds.has(l.target))
+                    .map((l: any) => ({ ...l }));
+
                 setData({ nodes, links });
                 setLoading(false);
             } catch (err) {

@@ -23,7 +23,7 @@ const StartHere: React.FC = () => {
         const fetchData = async () => {
             console.log("Fetching Start Here content...");
             try {
-                const response = await fetch('http://localhost:8000/api/start-here/');
+                const response = await fetch('/api/start-here/');
                 console.log("Response status:", response.status);
                 if (!response.ok) {
                     throw new Error('Failed to fetch content');
