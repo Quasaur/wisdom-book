@@ -60,38 +60,45 @@ const Topics: React.FC = () => {
 
     const T_Card_01 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
-            <div className="p-4 border-b border-border-color text-center">
+            <div className="px-4 py-2 border-b border-border-color text-center">
                 <h2 className="text-xl font-bold mt-0">Topics</h2>
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-bg-secondary text-text-secondary">
-                            <th className="p-3 border-b border-border-color font-semibold">Topic Level</th>
-                            <th className="p-3 border-b border-border-color font-semibold">Topic Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {topics.map((topic) => (
-                            <tr
-                                key={topic.id}
-                                onClick={() => setSelectedTopic(topic)}
-                                className={`cursor-pointer transition-colors duration-200 hover:bg-bg-secondary/50 ${selectedTopic?.id === topic.id ? 'bg-accent/10 border-l-4 border-accent' : ''
-                                    }`}
-                            >
-                                <td className="p-3 border-b border-border-color">{topic.level}</td>
-                                <td className="p-3 border-b border-border-color">{topic.title}</td>
+            <div className="p-4">
+                <div className="overflow-x-auto border border-blue-300 rounded-lg">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-bg-secondary text-text-secondary border-b-2 border-gray-600">
+                                <th className="p-3 font-semibold">Topic Level</th>
+                                <th className="p-3 font-semibold">Topic Name</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {topics.map((topic, index) => {
+                                const isSelected = selectedTopic?.id === topic.id;
+                                return (
+                                    <tr
+                                        key={topic.id}
+                                        onClick={() => setSelectedTopic(topic)}
+                                        className={`cursor-pointer transition-colors duration-200 hover:bg-bg-secondary/50 ${isSelected
+                                            ? 'bg-accent/10 border-l-4 border-accent text-yellow-400'
+                                            : index % 2 === 1 ? 'bg-primary-bg/30' : ''
+                                            }`}
+                                    >
+                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{topic.level}</td>
+                                        <td className="p-3 border-b border-border-color">{topic.title}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 
     const T_Card_02 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit sticky top-0">
-            <div className="p-4 border-b border-border-color text-center">
+            <div className="px-4 py-2 border-b border-border-color text-center">
                 <h2 className="text-xl font-bold mt-0">Selected Topic Detail</h2>
             </div>
             <div className="p-6">
