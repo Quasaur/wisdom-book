@@ -179,11 +179,23 @@ const Thoughts: React.FC = () => {
                         )}
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1">
-                                <li>ID: {selectedThought.id}</li>
-                                <li>Neo4j ID: {selectedThought.neo4j_id}</li>
-                                <li>Slug: {selectedThought.slug}</li>
-                                <li>Status: {selectedThought.is_active ? 'Active' : 'Inactive'}</li>
+                            <ul className="flex flex-wrap gap-x-6 text-sm">
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">ID:</span> {selectedThought.id}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Neo4j ID:</span> {selectedThought.neo4j_id}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Slug:</span> {selectedThought.slug}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Status:</span> {selectedThought.is_active ? 'Active' : 'Inactive'}</span>
+                                </li>
                             </ul>
                         </div>
                         {selectedThought.tags && selectedThought.tags.length > 0 && (

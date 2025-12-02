@@ -180,11 +180,23 @@ const Topics: React.FC = () => {
                         )}
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1">
-                                <li>ID: {selectedTopic.id}</li>
-                                <li>Neo4j ID: {selectedTopic.neo4j_id}</li>
-                                <li>Slug: {selectedTopic.slug}</li>
-                                <li>Status: {selectedTopic.is_active ? 'Active' : 'Inactive'}</li>
+                            <ul className="flex flex-wrap gap-x-6 text-sm">
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">ID:</span> {selectedTopic.id}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Neo4j ID:</span> {selectedTopic.neo4j_id}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Slug:</span> {selectedTopic.slug}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    <span><span className="text-[#00E5FF]">Status:</span> {selectedTopic.is_active ? 'Active' : 'Inactive'}</span>
+                                </li>
                             </ul>
                         </div>
                         {selectedTopic.tags && selectedTopic.tags.length > 0 && (
