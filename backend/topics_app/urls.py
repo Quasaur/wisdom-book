@@ -1,6 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import TopicsPageView
 
+router = DefaultRouter()
+router.register(r'', TopicsPageView, basename='topics')
+
 urlpatterns = [
-    path('', TopicsPageView.as_view(), name='topics-content'),
+    path('', include(router.urls)),
 ]

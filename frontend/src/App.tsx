@@ -8,6 +8,7 @@ import Topics from './components/Topics';
 import Thoughts from './components/Thoughts';
 import Quotes from './components/Quotes';
 import Bible from './components/Bible';
+import Tags from './components/Tags';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/thoughts" element={<Thoughts />} />
           <Route path="/quotes" element={<Quotes />} />
           <Route path="/bible" element={<Bible />} />
+          <Route path="/tags" element={<Tags />} />
           <Route path="/graph" element={<GraphView />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

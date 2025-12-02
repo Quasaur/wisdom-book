@@ -9,7 +9,8 @@ class PassagesPageView(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Passage.objects.filter(is_active=True).prefetch_related('contents')
     serializer_class = PassageSerializer
-    lookup_field = 'slug'
+    serializer_class = PassageSerializer
+
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

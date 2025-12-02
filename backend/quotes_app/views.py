@@ -1,10 +1,8 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import viewsets
 from .models import Quote
 from .serializers import QuoteSerializer
 
-class QuotesPageView(APIView):
-    def get(self, request):
-        quotes = Quote.objects.filter(is_active=True).order_by('title')
-        serializer = QuoteSerializer(quotes, many=True)
-        return Response(serializer.data)
+class QuotesPageView(viewsets.ReadOnlyModelViewSet):
+    queryset = Quote.objects.filter(is_active=True).order_by('title')
+    serializer_class = QuoteSerializer
+

@@ -1,6 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import ThoughtsPageView
 
+router = DefaultRouter()
+router.register(r'', ThoughtsPageView, basename='thoughts')
+
 urlpatterns = [
-    path('', ThoughtsPageView.as_view(), name='thoughts-content'),
+    path('', include(router.urls)),
 ]
