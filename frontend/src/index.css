@@ -32,6 +32,81 @@
   .card {
     @apply bg-card-bg rounded-2xl p-12 shadow-md mb-6 border border-yellow-400;
   }
+
+  /* Details Table Styles */
+  .details-table-container {
+    @apply overflow-x-auto border border-blue-300 rounded-lg;
+  }
+
+  .details-table {
+    @apply w-full text-left border-collapse;
+  }
+
+  .details-row-odd {
+    @apply bg-primary-bg/30 border-b border-border-color transition-colors duration-200 hover:bg-accent-bg/50;
+  }
+
+  .details-row-even {
+    @apply transition-colors duration-200 hover:bg-accent-bg/50 border-b border-border-color;
+  }
+
+  .details-cell-label {
+    @apply p-3 border-r border-border-color break-words whitespace-normal;
+  }
+
+  .details-cell-value {
+    @apply p-3 break-words whitespace-normal;
+  }
+
+  .details-label-text {
+    @apply text-[#00E5FF];
+  }
+
+  /* Tags Styles */
+  .tags-section-header {
+    @apply font-semibold mb-1;
+  }
+
+  .tags-container {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .tag-pill {
+    @apply px-2 py-1 bg-accent-bg text-sm rounded-full border border-border-color;
+  }
+
+  /* Content/Description Table Styles */
+  .content-section-header {
+    @apply font-semibold mb-1;
+  }
+
+  .content-table-container {
+    @apply overflow-x-auto border border-blue-300 rounded-lg;
+  }
+
+  .content-table {
+    @apply w-full text-left border-collapse;
+  }
+
+  .content-table-head-row {
+    @apply bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic;
+  }
+
+  .content-table-th {
+    @apply p-3 font-semibold;
+  }
+
+  .content-table-row-odd {
+    @apply bg-primary-bg/30 transition-colors duration-200 hover:bg-accent-bg/50;
+  }
+
+  .content-table-row-even {
+    @apply transition-colors duration-200 hover:bg-accent-bg/50;
+  }
+
+  .content-table-cell {
+    @apply p-3 border-b border-border-color;
+  }
 }
 
 /* Scrollbar Styling */

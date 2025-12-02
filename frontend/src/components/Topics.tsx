@@ -104,7 +104,7 @@ const Topics: React.FC = () => {
                 <div className="overflow-x-auto border border-blue-300 rounded-lg mb-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-bg-secondary text-text-secondary border-b-2 border-gray-600 italic">
+                            <tr className="bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic">
                                 <th className="p-3 font-semibold">Topic Level</th>
                                 <th className="p-3 font-semibold">Topic Name</th>
                             </tr>
@@ -116,7 +116,7 @@ const Topics: React.FC = () => {
                                     <tr
                                         key={topic.id}
                                         onClick={() => setSelectedTopic(topic)}
-                                        className={`cursor-pointer transition-colors duration-200 hover:bg-bg-secondary/50 ${isSelected
+                                        className={`cursor-pointer transition-colors duration-200 hover:bg-accent-bg/50 ${isSelected
                                             ? 'bg-accent/10 border-l-4 border-accent text-yellow-400'
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
@@ -138,7 +138,7 @@ const Topics: React.FC = () => {
                             disabled={currentPage === 1}
                             className={`px-3 py-1 rounded text-sm ${currentPage === 1
                                 ? 'text-text-secondary opacity-50 cursor-not-allowed'
-                                : 'text-yellow-400 hover:bg-bg-secondary'}`}
+                                : 'text-yellow-400 hover:bg-accent-bg'}`}
                         >
                             Previous
                         </button>
@@ -150,7 +150,7 @@ const Topics: React.FC = () => {
                             disabled={currentPage === totalPages}
                             className={`px-3 py-1 rounded text-sm ${currentPage === totalPages
                                 ? 'text-text-secondary opacity-50 cursor-not-allowed'
-                                : 'text-yellow-400 hover:bg-bg-secondary'}`}
+                                : 'text-yellow-400 hover:bg-accent-bg'}`}
                         >
                             Next
                         </button>
@@ -180,23 +180,23 @@ const Topics: React.FC = () => {
                         )}
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
-                            <div className="overflow-x-auto border border-blue-300 rounded-lg">
-                                <table className="w-full text-left border-collapse">
+                            <div className="details-table-container">
+                                <table className="details-table">
                                     <tbody>
-                                        <tr className="bg-primary-bg/30 border-b border-border-color transition-colors duration-200 hover:bg-bg-secondary/50">
-                                            <td className="p-3 border-r border-border-color w-1/2 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">ID:</span> {selectedTopic.id}
+                                        <tr className="details-row-odd">
+                                            <td className="details-cell-label w-1/2">
+                                                <span className="details-label-text">ID:</span> {selectedTopic.id}
                                             </td>
-                                            <td className="p-3 w-1/2 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Neo4j ID:</span> {selectedTopic.neo4j_id}
+                                            <td className="details-cell-value w-1/2">
+                                                <span className="details-label-text">Neo4j ID:</span> {selectedTopic.neo4j_id}
                                             </td>
                                         </tr>
-                                        <tr className="transition-colors duration-200 hover:bg-bg-secondary/50">
-                                            <td className="p-3 border-r border-border-color break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Slug:</span> {selectedTopic.slug}
+                                        <tr className="details-row-even">
+                                            <td className="details-cell-label">
+                                                <span className="details-label-text">Slug:</span> {selectedTopic.slug}
                                             </td>
-                                            <td className="p-3 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Status:</span> {selectedTopic.is_active ? 'Active' : 'Inactive'}
+                                            <td className="details-cell-value">
+                                                <span className="details-label-text">Status:</span> {selectedTopic.is_active ? 'Active' : 'Inactive'}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -205,12 +205,12 @@ const Topics: React.FC = () => {
                         </div>
                         {selectedTopic.tags && selectedTopic.tags.length > 0 && (
                             <div>
-                                <h4 className="font-semibold mb-2">Tags</h4>
-                                <div className="flex flex-wrap gap-2">
+                                <h4 className="tags-section-header">Tags</h4>
+                                <div className="tags-container">
                                     {selectedTopic.tags.map((tag, index) => (
                                         <span
                                             key={index}
-                                            className="px-2 py-1 bg-bg-secondary text-sm rounded-full border border-border-color"
+                                            className="tag-pill"
                                         >
                                             {tag}
                                         </span>
@@ -222,14 +222,14 @@ const Topics: React.FC = () => {
                         {/* Description Table */}
                         {selectedTopic.descriptions && selectedTopic.descriptions.length > 0 && (
                             <div className="mt-6">
-                                <h4 className="font-semibold mb-1">Description</h4>
-                                <div className="overflow-x-auto border border-blue-300 rounded-lg">
-                                    <table className="w-full text-left border-collapse">
+                                <h4 className="content-section-header">Description</h4>
+                                <div className="content-table-container">
+                                    <table className="content-table">
                                         <thead>
-                                            <tr className="bg-bg-secondary text-text-secondary border-b-2 border-gray-600 italic">
-                                                <th className="p-3 font-semibold w-24">Language</th>
-                                                <th className="p-3 font-semibold w-48">Title</th>
-                                                <th className="p-3 font-semibold">Content</th>
+                                            <tr className="content-table-head-row">
+                                                <th className="content-table-th w-24">Language</th>
+                                                <th className="content-table-th w-48">Title</th>
+                                                <th className="content-table-th">Content</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -242,12 +242,11 @@ const Topics: React.FC = () => {
                                             ].map((row, index) => (
                                                 <tr
                                                     key={index}
-                                                    className={`transition-colors duration-200 hover:bg-bg-secondary/50 ${index % 2 === 1 ? 'bg-primary-bg/30' : ''
-                                                        }`}
+                                                    className={index % 2 === 1 ? 'content-table-row-odd' : 'content-table-row-even'}
                                                 >
-                                                    <td className="p-3 border-b border-border-color font-medium align-top">{row.lang}</td>
-                                                    <td className="p-3 border-b border-border-color align-top">{row.title}</td>
-                                                    <td className="p-3 border-b border-border-color">{row.content}</td>
+                                                    <td className="content-table-cell font-medium align-top">{row.lang}</td>
+                                                    <td className="content-table-cell align-top">{row.title}</td>
+                                                    <td className="content-table-cell">{row.content}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

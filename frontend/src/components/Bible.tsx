@@ -13,21 +13,23 @@ interface Content {
     zh_content: string;
 }
 
-interface Thought {
+interface Passage {
     id: number;
     title: string;
-    description: string;
-    parent_id: string | null;
+    book: string;
+    chapter: string;
+    verse: string;
+    source: string;
     slug: string;
     is_active: boolean;
     neo4j_id: string;
-    tags: string[];
     contents: Content[];
+    tags: string[];
 }
 
-const Thoughts: React.FC = () => {
-    const [thoughts, setThoughts] = useState<Thought[]>([]);
-    const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
+const Bible: React.FC = () => {
+    const [passages, setPassages] = useState<Passage[]>([]);
+    const [selectedPassage, setSelectedPassage] = useState<Passage | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,41 +37,44 @@ const Thoughts: React.FC = () => {
     const itemsPerPage = 10;
 
     useEffect(() => {
-        const fetchThoughts = async () => {
-            console.log("Fetching Thoughts...");
+        const fetchPassages = async () => {
+            console.log("Fetching Passages...");
             try {
-                const response = await fetch('/api/thoughts/');
+                const response = await fetch('/api/passages/');
                 console.log("Response status:", response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch thoughts');
+                    throw new Error('Failed to fetch passages');
                 }
                 const data = await response.json();
                 console.log("Data received:", data);
-                setThoughts(data);
-                if (data.length > 0) {
-                    setSelectedThought(data[0]);
+                // Handle paginated response from Django REST Framework
+                const results = data.results || data;
+                setPassages(results);
+                if (results.length > 0) {
+                    setSelectedPassage(results[0]);
                 }
             } catch (err) {
-                console.error("Error fetching Thoughts:", err);
-                setError("Failed to load thoughts. Please try again later.");
+                console.error("Error fetching Passages:", err);
+                setError("Failed to load passages. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchThoughts();
+        fetchPassages();
     }, []);
 
-    // Filter thoughts based on search query
-    const filteredThoughts = thoughts.filter(thought =>
-        thought.title.toLowerCase().includes(searchQuery.toLowerCase())
+    // Filter passages based on search query
+    const filteredPassages = passages.filter(passage =>
+        passage.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        passage.book.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Calculate pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentThoughts = filteredThoughts.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredThoughts.length / itemsPerPage);
+    const currentPassages = filteredPassages.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredPassages.length / itemsPerPage);
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -81,7 +86,7 @@ const Thoughts: React.FC = () => {
     if (loading) {
         return (
             <div className="card !p-0 overflow-hidden min-h-[400px] flex items-center justify-center">
-                <div className="text-text-secondary">Loading thoughts...</div>
+                <div className="text-text-secondary">Loading passages...</div>
             </div>
         );
     }
@@ -94,10 +99,10 @@ const Thoughts: React.FC = () => {
         );
     }
 
-    const TC_Card_01 = (
+    const B_Card_01 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Thoughts</h2>
+                <h2 className="text-xl font-bold mt-0">Bible Passages</h2>
                 <p className="font-bold text-sm text-text-secondary mt-1 mb-0">Select a row to view its Details.</p>
             </div>
             <div className="px-4 pb-4 pt-2">
@@ -105,24 +110,24 @@ const Thoughts: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic">
-                                <th className="p-3 font-semibold">Thought Name</th>
-                                <th className="p-3 font-semibold">Parent Topic</th>
+                                <th className="p-3 font-semibold">Passage</th>
+                                <th className="p-3 font-semibold">Book</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentThoughts.map((thought, index) => {
-                                const isSelected = selectedThought?.id === thought.id;
+                            {currentPassages.map((passage, index) => {
+                                const isSelected = selectedPassage?.id === passage.id;
                                 return (
                                     <tr
-                                        key={thought.id}
-                                        onClick={() => setSelectedThought(thought)}
+                                        key={passage.id}
+                                        onClick={() => setSelectedPassage(passage)}
                                         className={`cursor-pointer transition-colors duration-200 hover:bg-accent-bg/50 ${isSelected
                                             ? 'bg-accent/10 border-l-4 border-accent text-yellow-400'
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
                                     >
-                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{thought.title}</td>
-                                        <td className="p-3 border-b border-border-color">{thought.parent_id || '-'}</td>
+                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{passage.title}</td>
+                                        <td className="p-3 border-b border-border-color">{passage.book || '-'}</td>
                                     </tr>
                                 );
                             })}
@@ -160,23 +165,23 @@ const Thoughts: React.FC = () => {
         </div>
     );
 
-    const TC_Card_02 = (
+    const B_Card_02 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit sticky top-0">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Selected Thought Detail</h2>
+                <h2 className="text-xl font-bold mt-0">Selected Passage Detail</h2>
             </div>
             <div className="px-6 pb-6 pt-3">
-                {selectedThought ? (
+                {selectedPassage ? (
                     <div className="space-y-4 text-gray-300">
                         <div>
-                            <h3 className="text-lg font-semibold text-accent">{selectedThought.title}</h3>
+                            <h3 className="text-lg font-semibold text-accent">{selectedPassage.title}</h3>
+                            {selectedPassage.book && (
+                                <p className="text-sm text-text-secondary italic">
+                                    {selectedPassage.book} {selectedPassage.chapter}:{selectedPassage.verse}
+                                </p>
+                            )}
                         </div>
-                        {selectedThought.description && (
-                            <div>
-                                <h4 className="font-semibold mb-1">Description</h4>
-                                <p>{selectedThought.description}</p>
-                            </div>
-                        )}
+
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
                             <div className="details-table-container">
@@ -184,33 +189,37 @@ const Thoughts: React.FC = () => {
                                     <tbody>
                                         <tr className="details-row-odd">
                                             <td className="details-cell-label w-1/2">
-                                                <span className="details-label-text">ID:</span> {selectedThought.id}
+                                                <span className="details-label-text">ID:</span> {selectedPassage.id}
                                             </td>
                                             <td className="details-cell-value w-1/2">
-                                                <span className="details-label-text">Neo4j ID:</span> {selectedThought.neo4j_id}
+                                                <span className="details-label-text">Neo4j ID:</span> {selectedPassage.neo4j_id}
                                             </td>
                                         </tr>
                                         <tr className="details-row-even">
                                             <td className="details-cell-label">
-                                                <span className="details-label-text">Slug:</span> {selectedThought.slug}
+                                                <span className="details-label-text">Slug:</span> {selectedPassage.slug}
                                             </td>
                                             <td className="details-cell-value">
-                                                <span className="details-label-text">Status:</span> {selectedThought.is_active ? 'Active' : 'Inactive'}
+                                                <span className="details-label-text">Status:</span> {selectedPassage.is_active ? 'Active' : 'Inactive'}
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-primary-bg/30 transition-colors duration-200 hover:bg-accent-bg/50">
+                                            <td className="details-cell-label" colSpan={2}>
+                                                <span className="details-label-text">Source:</span> {selectedPassage.source}
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        {selectedThought.tags && selectedThought.tags.length > 0 && (
+
+                        {/* Tags Section */}
+                        {selectedPassage.tags && selectedPassage.tags.length > 0 && (
                             <div>
                                 <h4 className="tags-section-header">Tags</h4>
                                 <div className="tags-container">
-                                    {selectedThought.tags.map((tag, index) => (
-                                        <span
-                                            key={index}
-                                            className="tag-pill"
-                                        >
+                                    {selectedPassage.tags.map((tag, index) => (
+                                        <span key={index} className="tag-pill">
                                             {tag}
                                         </span>
                                     ))}
@@ -219,7 +228,7 @@ const Thoughts: React.FC = () => {
                         )}
 
                         {/* Content Table */}
-                        {selectedThought.contents && selectedThought.contents.length > 0 && (
+                        {selectedPassage.contents && selectedPassage.contents.length > 0 && (
                             <div className="mt-6">
                                 <h4 className="content-section-header">Content</h4>
                                 <div className="content-table-container">
@@ -233,11 +242,11 @@ const Thoughts: React.FC = () => {
                                         </thead>
                                         <tbody>
                                             {[
-                                                { lang: 'English', title: selectedThought.contents[0].en_title, content: selectedThought.contents[0].en_content },
-                                                { lang: 'Spanish', title: selectedThought.contents[0].es_title, content: selectedThought.contents[0].es_content },
-                                                { lang: 'French', title: selectedThought.contents[0].fr_title, content: selectedThought.contents[0].fr_content },
-                                                { lang: 'Hindi', title: selectedThought.contents[0].hi_title, content: selectedThought.contents[0].hi_content },
-                                                { lang: 'Chinese', title: selectedThought.contents[0].zh_title, content: selectedThought.contents[0].zh_content },
+                                                { lang: 'English', title: selectedPassage.contents[0].en_title, content: selectedPassage.contents[0].en_content },
+                                                { lang: 'Spanish', title: selectedPassage.contents[0].es_title, content: selectedPassage.contents[0].es_content },
+                                                { lang: 'French', title: selectedPassage.contents[0].fr_title, content: selectedPassage.contents[0].fr_content },
+                                                { lang: 'Hindi', title: selectedPassage.contents[0].hi_title, content: selectedPassage.contents[0].hi_content },
+                                                { lang: 'Chinese', title: selectedPassage.contents[0].zh_title, content: selectedPassage.contents[0].zh_content },
                                             ].map((row, index) => (
                                                 <tr
                                                     key={index}
@@ -255,7 +264,7 @@ const Thoughts: React.FC = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="text-text-secondary italic">Select a thought to view details</div>
+                    <div className="text-text-secondary italic">Select a passage to view details</div>
                 )}
             </div>
         </div>
@@ -268,7 +277,7 @@ const Thoughts: React.FC = () => {
                 <div className="w-full max-w-md">
                     <input
                         type="text"
-                        placeholder="Search thoughts..."
+                        placeholder="Search passages..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-yellow-400 text-gray-200 focus:outline-none focus:border-accent transition-colors duration-200 placeholder-gray-500"
@@ -277,11 +286,11 @@ const Thoughts: React.FC = () => {
             </div>
 
             <div className="flex gap-[60px] items-start">
-                {TC_Card_01}
-                {TC_Card_02}
+                {B_Card_01}
+                {B_Card_02}
             </div>
         </div>
     );
 };
 
-export default Thoughts;
+export default Bible;

@@ -8,5 +8,6 @@ urlpatterns = [
     path("api/topics/", include("topics_app.urls")),
     path("api/thoughts/", include("thoughts_app.urls")),
     path("api/quotes/", include("quotes_app.urls")),
+    path("api/passages/", include("passages_app.urls")),
     path("graph/", include("graphview_app.urls")),
 ]

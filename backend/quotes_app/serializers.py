@@ -14,7 +14,11 @@ class QuoteContentSerializer(serializers.ModelSerializer):
 
 class QuoteSerializer(serializers.ModelSerializer):
     contents = QuoteContentSerializer(many=True, read_only=True)
+    tags = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
-        fields = ['id', 'title', 'author', 'source', 'book_link', 'slug', 'is_active', 'neo4j_id', 'contents']
+        fields = ['id', 'title', 'author', 'source', 'book_link', 'slug', 'is_active', 'neo4j_id', 'contents', 'tags']
+
+    def get_tags(self, obj):
+        return [t.tag for t in obj.quote_tags.all()]

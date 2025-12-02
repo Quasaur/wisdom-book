@@ -79,3 +79,20 @@ class QuoteContent(models.Model):
 
     def __str__(self):
         return f"Content for {self.quote.title}"
+
+
+class QuoteTag(models.Model):
+    """Tags for quotes"""
+    
+    quote = models.ForeignKey(Quote, on_delete=models.CASCADE, related_name='quote_tags')
+    tag = models.CharField(max_length=100, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['quote', 'tag']
+        indexes = [
+            models.Index(fields=['tag']),
+        ]
+    
+    def __str__(self):
+        return f"{self.quote.title} - {self.tag}"

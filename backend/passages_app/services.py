@@ -1,39 +1,40 @@
 """
-Quotes service module for Neo4j integration and business logic
+Passages service module for Neo4j integration and business logic
 """
 
 from typing import List, Dict, Optional, Tuple
 from django.conf import settings
 from django.utils import timezone
 from neo4j_app.neo4j_service import neo4j_service
-from .models import Quote, QuoteContent
+from .models import Passage, PassageContent
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class QuotesService:
+class PassagesService:
     """
-    Service class for managing quotes with Neo4j and Django integration
+    Service class for managing passages with Neo4j and Django integration
     """
     
     def __init__(self):
         self.neo4j = neo4j_service
     
-    def get_all_quotes(self) -> List[Dict]:
+    def get_all_passages(self) -> List[Dict]:
         """
-        Get all quotes from Neo4j
+        Get all passages from Neo4j
         """
         try:
             query = """
-            MATCH (q:QUOTE)
-            OPTIONAL MATCH (q)-[:HAS_CONTENT]->(c:CONTENT)
-            RETURN q.name as id, 
-                   q.alias as title, 
-                   q.author as author,
-                   q.source as source,
-                   q.booklink as book_link,
-                   q.tags as tags,
+            MATCH (p:PASSAGE)
+            OPTIONAL MATCH (p)-[:HAS_CONTENT]->(c:CONTENT)
+            RETURN p.name as id, 
+                   p.alias as title, 
+                   p.book as book,
+                   p.chapter as chapter,
+                   p.verse as verse,
+                   p.source as source,
+                   p.tags as tags,
                    collect({
                        id: c.name, 
                        content: coalesce(c.en_content, ''),
@@ -43,59 +44,60 @@ class QuotesService:
                        hi_title: c.hi_title, hi_content: c.hi_content,
                        zh_title: c.zh_title, zh_content: c.zh_content
                    }) as contents
-            ORDER BY q.alias
+            ORDER BY p.alias
             """
-            quotes = self.neo4j.run_query(query, query_name="get_all_quotes_full")
-            return quotes
+            passages = self.neo4j.run_query(query, query_name="get_all_passages_full")
+            return passages
             
         except Exception as e:
-            logger.error(f"Error fetching quotes: {e}")
+            logger.error(f"Error fetching passages: {e}")
             return []
 
-    def sync_quotes_from_neo4j(self) -> Tuple[bool, str, int]:
+    def sync_passages_from_neo4j(self) -> Tuple[bool, str, int]:
         """
-        Sync quotes from Neo4j to Django models
+        Sync passages from Neo4j to Django models
         """
         try:
-            neo4j_quotes = self.get_all_quotes()
+            neo4j_passages = self.get_all_passages()
             records_processed = 0
             
-            for quote_data in neo4j_quotes:
+            for passage_data in neo4j_passages:
                 try:
-                    self._sync_single_quote(quote_data)
+                    self._sync_single_passage(passage_data)
                     records_processed += 1
                 except Exception as e:
-                    logger.error(f"Error syncing quote {quote_data.get('id')}: {e}")
+                    logger.error(f"Error syncing passage {passage_data.get('id')}: {e}")
             
-            return True, f"Successfully synced {records_processed} quotes", records_processed
+            return True, f"Successfully synced {records_processed} passages", records_processed
             
         except Exception as e:
             error_msg = f"Sync failed: {str(e)}"
             logger.error(error_msg)
             return False, error_msg, 0
 
-    def _sync_single_quote(self, quote_data: Dict):
-        """Sync a single quote to Django model"""
-        neo4j_id = quote_data.get('id')
+    def _sync_single_passage(self, passage_data: Dict):
+        """Sync a single passage to Django model"""
+        neo4j_id = passage_data.get('id')
         if not neo4j_id:
             return
         
-        quote, created = Quote.objects.update_or_create(
+        passage, created = Passage.objects.update_or_create(
             neo4j_id=neo4j_id,
             defaults={
-                'title': quote_data.get('title') or '',
-                'author': quote_data.get('author') or '',
-                'source': quote_data.get('source') or '',
-                'book_link': quote_data.get('book_link') or '',
+                'title': passage_data.get('title') or '',
+                'book': passage_data.get('book') or '',
+                'chapter': passage_data.get('chapter') or '',
+                'verse': passage_data.get('verse') or '',
+                'source': passage_data.get('source') or '',
                 'last_synced': timezone.now(),
             }
         )
         
         # Sync contents
-        contents = quote_data.get('contents', [])
+        contents = passage_data.get('contents', [])
         
-        # Get existing contents for this quote
-        existing_contents = {c.neo4j_id: c for c in QuoteContent.objects.filter(quote=quote)}
+        # Get existing contents for this passage
+        existing_contents = {c.neo4j_id: c for c in PassageContent.objects.filter(passage=passage)}
         processed_ids = set()
         
         for content_data in contents:
@@ -124,8 +126,8 @@ class QuotesService:
                 content_obj.save()
             else:
                 # Create new
-                QuoteContent.objects.create(
-                    quote=quote,
+                PassageContent.objects.create(
+                    passage=passage,
                     neo4j_id=content_id,
                     content=content_text,
                     en_title=content_data.get('en_title') or '',
@@ -140,30 +142,30 @@ class QuotesService:
                     zh_content=content_data.get('zh_content') or ''
                 )
         
-        # Delete contents that no longer exist in Neo4j for this quote
+        # Delete contents that no longer exist in Neo4j for this passage
         for content_id, content_obj in existing_contents.items():
             if content_id not in processed_ids:
                 content_obj.delete()
         
         # Sync tags
-        tags = quote_data.get('tags', [])
-        from .models import QuoteTag
+        tags = passage_data.get('tags', [])
+        from .models import PassageTag
         
         # Get existing tags
-        existing_tags = {t.tag: t for t in QuoteTag.objects.filter(quote=quote)}
+        existing_tags = {t.tag: t for t in PassageTag.objects.filter(passage=passage)}
         current_tags = set(tags)
         
         # Create new tags
         for tag_name in current_tags:
             if tag_name and tag_name not in existing_tags:
-                QuoteTag.objects.create(quote=quote, tag=tag_name)
+                PassageTag.objects.create(passage=passage, tag=tag_name)
         
         # Delete removed tags
         for tag_name, tag_obj in existing_tags.items():
             if tag_name not in current_tags:
                 tag_obj.delete()
         
-        return quote
+        return passage
 
 # Global service instance
-quotes_service = QuotesService()
+passages_service = PassagesService()
