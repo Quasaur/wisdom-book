@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Hash, FileText, MessageSquare, Book, LayoutGrid, AlertCircle, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Search, Hash, FileText, MessageSquare, Book, LayoutGrid, AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 interface TagSource {
     id: number;
@@ -241,14 +241,8 @@ const Tags: React.FC = () => {
     const { title: detailTitle, content: detailContent } = getContent();
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-            {/* Header */}
-            <header className="h-header-height bg-primary-bg flex items-center justify-between px-6 border-b border-border-color shrink-0">
-                <div className="text-3xl font-bold text-yellow-400">Tags | The Book of Wisdom</div>
-                <div className="flex gap-4">
-                    <User className="text-text-secondary cursor-pointer w-6 h-6" />
-                </div>
-            </header>
+        <div className="flex-1 flex flex-col h-[calc(100%+30px)] -mt-[30px] overflow-hidden">
+
 
             {/* Main Content Area */}
             <main className="flex-1 overflow-hidden w-full box-border bg-content-bg flex flex-col p-6">

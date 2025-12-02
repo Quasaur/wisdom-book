@@ -46,9 +46,11 @@ const Quotes: React.FC = () => {
                 }
                 const data = await response.json();
                 console.log("Data received:", data);
-                setQuotes(data);
-                if (data.length > 0) {
-                    setSelectedQuote(data[0]);
+                // Handle paginated response from ReadOnlyModelViewSet
+                const quotesData = data.results || data;
+                setQuotes(quotesData);
+                if (quotesData.length > 0) {
+                    setSelectedQuote(quotesData[0]);
                 }
             } catch (err) {
                 console.error("Error fetching Quotes:", err);

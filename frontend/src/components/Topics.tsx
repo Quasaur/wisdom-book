@@ -45,9 +45,11 @@ const Topics: React.FC = () => {
                 }
                 const data = await response.json();
                 console.log("Data received:", data);
-                setTopics(data);
-                if (data.length > 0) {
-                    setSelectedTopic(data[0]);
+                // Handle paginated response from ReadOnlyModelViewSet
+                const topicsData = data.results || data;
+                setTopics(topicsData);
+                if (topicsData.length > 0) {
+                    setSelectedTopic(topicsData[0]);
                 }
             } catch (err) {
                 console.error("Error fetching Topics:", err);

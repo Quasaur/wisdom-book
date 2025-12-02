@@ -45,9 +45,11 @@ const Thoughts: React.FC = () => {
                 }
                 const data = await response.json();
                 console.log("Data received:", data);
-                setThoughts(data);
-                if (data.length > 0) {
-                    setSelectedThought(data[0]);
+                // Handle paginated response from ReadOnlyModelViewSet
+                const thoughtsData = data.results || data;
+                setThoughts(thoughtsData);
+                if (thoughtsData.length > 0) {
+                    setSelectedThought(thoughtsData[0]);
                 }
             } catch (err) {
                 console.error("Error fetching Thoughts:", err);
