@@ -179,24 +179,28 @@ const Thoughts: React.FC = () => {
                         )}
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
-                            <ul className="flex flex-wrap gap-x-6 text-sm">
-                                <li className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
-                                    <span><span className="text-[#00E5FF]">ID:</span> {selectedThought.id}</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
-                                    <span><span className="text-[#00E5FF]">Neo4j ID:</span> {selectedThought.neo4j_id}</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
-                                    <span><span className="text-[#00E5FF]">Slug:</span> {selectedThought.slug}</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
-                                    <span><span className="text-[#00E5FF]">Status:</span> {selectedThought.is_active ? 'Active' : 'Inactive'}</span>
-                                </li>
-                            </ul>
+                            <div className="overflow-x-auto border border-blue-300 rounded-lg">
+                                <table className="w-full text-left border-collapse">
+                                    <tbody>
+                                        <tr className="bg-primary-bg/30 border-b border-border-color transition-colors duration-200 hover:bg-bg-secondary/50">
+                                            <td className="p-3 border-r border-border-color w-1/2 break-words whitespace-normal">
+                                                <span className="text-[#00E5FF]">ID:</span> {selectedThought.id}
+                                            </td>
+                                            <td className="p-3 w-1/2 break-words whitespace-normal">
+                                                <span className="text-[#00E5FF]">Neo4j ID:</span> {selectedThought.neo4j_id}
+                                            </td>
+                                        </tr>
+                                        <tr className="transition-colors duration-200 hover:bg-bg-secondary/50">
+                                            <td className="p-3 border-r border-border-color break-words whitespace-normal">
+                                                <span className="text-[#00E5FF]">Slug:</span> {selectedThought.slug}
+                                            </td>
+                                            <td className="p-3 break-words whitespace-normal">
+                                                <span className="text-[#00E5FF]">Status:</span> {selectedThought.is_active ? 'Active' : 'Inactive'}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         {selectedThought.tags && selectedThought.tags.length > 0 && (
                             <div>
@@ -240,8 +244,8 @@ const Thoughts: React.FC = () => {
                                                     className={`transition-colors duration-200 hover:bg-bg-secondary/50 ${index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                                         }`}
                                                 >
-                                                    <td className="p-3 border-b border-border-color font-medium">{row.lang}</td>
-                                                    <td className="p-3 border-b border-border-color">{row.title}</td>
+                                                    <td className="p-3 border-b border-border-color font-medium align-top">{row.lang}</td>
+                                                    <td className="p-3 border-b border-border-color align-top">{row.title}</td>
                                                     <td className="p-3 border-b border-border-color">{row.content}</td>
                                                 </tr>
                                             ))}

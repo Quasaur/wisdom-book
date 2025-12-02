@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface Description {
+interface Content {
     en_title: string;
     en_content: string;
     es_title: string;
@@ -13,21 +13,21 @@ interface Description {
     zh_content: string;
 }
 
-interface Topic {
+interface Quote {
     id: number;
-    level: number;
     title: string;
-    description: string;
+    author: string;
+    source: string;
+    book_link: string;
     slug: string;
     is_active: boolean;
     neo4j_id: string;
-    tags: string[];
-    descriptions: Description[];
+    contents: Content[];
 }
 
-const Topics: React.FC = () => {
-    const [topics, setTopics] = useState<Topic[]>([]);
-    const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+const Quotes: React.FC = () => {
+    const [quotes, setQuotes] = useState<Quote[]>([]);
+    const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,41 +35,42 @@ const Topics: React.FC = () => {
     const itemsPerPage = 10;
 
     useEffect(() => {
-        const fetchTopics = async () => {
-            console.log("Fetching Topics...");
+        const fetchQuotes = async () => {
+            console.log("Fetching Quotes...");
             try {
-                const response = await fetch('/api/topics/');
+                const response = await fetch('/api/quotes/');
                 console.log("Response status:", response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch topics');
+                    throw new Error('Failed to fetch quotes');
                 }
                 const data = await response.json();
                 console.log("Data received:", data);
-                setTopics(data);
+                setQuotes(data);
                 if (data.length > 0) {
-                    setSelectedTopic(data[0]);
+                    setSelectedQuote(data[0]);
                 }
             } catch (err) {
-                console.error("Error fetching Topics:", err);
-                setError("Failed to load topics. Please try again later.");
+                console.error("Error fetching Quotes:", err);
+                setError("Failed to load quotes. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchTopics();
+        fetchQuotes();
     }, []);
 
-    // Filter topics based on search query
-    const filteredTopics = topics.filter(topic =>
-        topic.title.toLowerCase().includes(searchQuery.toLowerCase())
+    // Filter quotes based on search query
+    const filteredQuotes = quotes.filter(quote =>
+        quote.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.author.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Calculate pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentTopics = filteredTopics.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredTopics.length / itemsPerPage);
+    const currentQuotes = filteredQuotes.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredQuotes.length / itemsPerPage);
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -81,7 +82,7 @@ const Topics: React.FC = () => {
     if (loading) {
         return (
             <div className="card !p-0 overflow-hidden min-h-[400px] flex items-center justify-center">
-                <div className="text-text-secondary">Loading topics...</div>
+                <div className="text-text-secondary">Loading quotes...</div>
             </div>
         );
     }
@@ -94,10 +95,10 @@ const Topics: React.FC = () => {
         );
     }
 
-    const T_Card_01 = (
+    const Q_Card_01 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Topics</h2>
+                <h2 className="text-xl font-bold mt-0">Quotes</h2>
                 <p className="font-bold text-sm text-text-secondary mt-1 mb-0">Select a row to view its Details.</p>
             </div>
             <div className="px-4 pb-4 pt-2">
@@ -105,24 +106,24 @@ const Topics: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-bg-secondary text-text-secondary border-b-2 border-gray-600 italic">
-                                <th className="p-3 font-semibold">Topic Level</th>
-                                <th className="p-3 font-semibold">Topic Name</th>
+                                <th className="p-3 font-semibold">Quote</th>
+                                <th className="p-3 font-semibold">Author</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentTopics.map((topic, index) => {
-                                const isSelected = selectedTopic?.id === topic.id;
+                            {currentQuotes.map((quote, index) => {
+                                const isSelected = selectedQuote?.id === quote.id;
                                 return (
                                     <tr
-                                        key={topic.id}
-                                        onClick={() => setSelectedTopic(topic)}
+                                        key={quote.id}
+                                        onClick={() => setSelectedQuote(quote)}
                                         className={`cursor-pointer transition-colors duration-200 hover:bg-bg-secondary/50 ${isSelected
                                             ? 'bg-accent/10 border-l-4 border-accent text-yellow-400'
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
                                     >
-                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{topic.level}</td>
-                                        <td className="p-3 border-b border-border-color">{topic.title}</td>
+                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{quote.title}</td>
+                                        <td className="p-3 border-b border-border-color">{quote.author || '-'}</td>
                                     </tr>
                                 );
                             })}
@@ -160,24 +161,21 @@ const Topics: React.FC = () => {
         </div>
     );
 
-    const T_Card_02 = (
+    const Q_Card_02 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit sticky top-0">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Selected Topic Detail</h2>
+                <h2 className="text-xl font-bold mt-0">Selected Quote Detail</h2>
             </div>
             <div className="px-6 pb-6 pt-3">
-                {selectedTopic ? (
+                {selectedQuote ? (
                     <div className="space-y-4 text-gray-300">
                         <div>
-                            <h3 className="text-lg font-semibold text-accent">{selectedTopic.title}</h3>
-                            <p className="text-sm">Level: {selectedTopic.level}</p>
+                            <h3 className="text-lg font-semibold text-accent">{selectedQuote.title}</h3>
+                            {selectedQuote.author && (
+                                <p className="text-sm text-text-secondary italic">- {selectedQuote.author}</p>
+                            )}
                         </div>
-                        {selectedTopic.description && (
-                            <div>
-                                <h4 className="font-semibold mb-1">Description</h4>
-                                <p>{selectedTopic.description}</p>
-                            </div>
-                        )}
+
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
                             <div className="overflow-x-auto border border-blue-300 rounded-lg">
@@ -185,44 +183,43 @@ const Topics: React.FC = () => {
                                     <tbody>
                                         <tr className="bg-primary-bg/30 border-b border-border-color transition-colors duration-200 hover:bg-bg-secondary/50">
                                             <td className="p-3 border-r border-border-color w-1/2 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">ID:</span> {selectedTopic.id}
+                                                <span className="text-[#00E5FF]">ID:</span> {selectedQuote.id}
                                             </td>
                                             <td className="p-3 w-1/2 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Neo4j ID:</span> {selectedTopic.neo4j_id}
+                                                <span className="text-[#00E5FF]">Neo4j ID:</span> {selectedQuote.neo4j_id}
                                             </td>
                                         </tr>
                                         <tr className="transition-colors duration-200 hover:bg-bg-secondary/50">
                                             <td className="p-3 border-r border-border-color break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Slug:</span> {selectedTopic.slug}
+                                                <span className="text-[#00E5FF]">Slug:</span> {selectedQuote.slug}
                                             </td>
                                             <td className="p-3 break-words whitespace-normal">
-                                                <span className="text-[#00E5FF]">Status:</span> {selectedTopic.is_active ? 'Active' : 'Inactive'}
+                                                <span className="text-[#00E5FF]">Status:</span> {selectedQuote.is_active ? 'Active' : 'Inactive'}
                                             </td>
                                         </tr>
+                                        {selectedQuote.source && (
+                                            <tr className="bg-primary-bg/30 border-t border-border-color transition-colors duration-200 hover:bg-bg-secondary/50">
+                                                <td className="p-3 border-r border-border-color break-words whitespace-normal">
+                                                    <span className="text-[#00E5FF]">Source:</span> {selectedQuote.source}
+                                                </td>
+                                                <td className="p-3 break-words whitespace-normal">
+                                                    {selectedQuote.book_link && (
+                                                        <>
+                                                            <span className="text-[#00E5FF]">Book Link:</span> <a href={selectedQuote.book_link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline break-all">{selectedQuote.book_link}</a>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        {selectedTopic.tags && selectedTopic.tags.length > 0 && (
-                            <div>
-                                <h4 className="font-semibold mb-2">Tags</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedTopic.tags.map((tag, index) => (
-                                        <span
-                                            key={index}
-                                            className="px-2 py-1 bg-bg-secondary text-sm rounded-full border border-border-color"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
-                        {/* Description Table */}
-                        {selectedTopic.descriptions && selectedTopic.descriptions.length > 0 && (
+                        {/* Content Table */}
+                        {selectedQuote.contents && selectedQuote.contents.length > 0 && (
                             <div className="mt-6">
-                                <h4 className="font-semibold mb-1">Description</h4>
+                                <h4 className="font-semibold mb-1">Content</h4>
                                 <div className="overflow-x-auto border border-blue-300 rounded-lg">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
@@ -234,11 +231,11 @@ const Topics: React.FC = () => {
                                         </thead>
                                         <tbody>
                                             {[
-                                                { lang: 'English', title: selectedTopic.descriptions[0].en_title, content: selectedTopic.descriptions[0].en_content },
-                                                { lang: 'Spanish', title: selectedTopic.descriptions[0].es_title, content: selectedTopic.descriptions[0].es_content },
-                                                { lang: 'French', title: selectedTopic.descriptions[0].fr_title, content: selectedTopic.descriptions[0].fr_content },
-                                                { lang: 'Hindi', title: selectedTopic.descriptions[0].hi_title, content: selectedTopic.descriptions[0].hi_content },
-                                                { lang: 'Chinese', title: selectedTopic.descriptions[0].zh_title, content: selectedTopic.descriptions[0].zh_content },
+                                                { lang: 'English', title: selectedQuote.contents[0].en_title, content: selectedQuote.contents[0].en_content },
+                                                { lang: 'Spanish', title: selectedQuote.contents[0].es_title, content: selectedQuote.contents[0].es_content },
+                                                { lang: 'French', title: selectedQuote.contents[0].fr_title, content: selectedQuote.contents[0].fr_content },
+                                                { lang: 'Hindi', title: selectedQuote.contents[0].hi_title, content: selectedQuote.contents[0].hi_content },
+                                                { lang: 'Chinese', title: selectedQuote.contents[0].zh_title, content: selectedQuote.contents[0].zh_content },
                                             ].map((row, index) => (
                                                 <tr
                                                     key={index}
@@ -257,7 +254,7 @@ const Topics: React.FC = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="text-text-secondary italic">Select a topic to view details</div>
+                    <div className="text-text-secondary italic">Select a quote to view details</div>
                 )}
             </div>
         </div>
@@ -270,7 +267,7 @@ const Topics: React.FC = () => {
                 <div className="w-full max-w-md">
                     <input
                         type="text"
-                        placeholder="Search topics..."
+                        placeholder="Search quotes..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-yellow-400 text-gray-200 focus:outline-none focus:border-accent transition-colors duration-200 placeholder-gray-500"
@@ -279,11 +276,11 @@ const Topics: React.FC = () => {
             </div>
 
             <div className="flex gap-[60px] items-start">
-                {T_Card_01}
-                {T_Card_02}
+                {Q_Card_01}
+                {Q_Card_02}
             </div>
         </div>
     );
 };
 
-export default Topics;
+export default Quotes;

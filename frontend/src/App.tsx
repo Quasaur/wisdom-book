@@ -6,6 +6,7 @@ import GraphView from './components/GraphView';
 import StartHere from './components/StartHere';
 import Topics from './components/Topics';
 import Thoughts from './components/Thoughts';
+import Quotes from './components/Quotes';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<StartHere />} />
           <Route path="/topics" element={<Topics />} />
           <Route path="/thoughts" element={<Thoughts />} />
+          <Route path="/quotes" element={<Quotes />} />
           <Route path="/graph" element={<GraphView />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

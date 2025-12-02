@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Root .gitignore for wisdom-book
 # Consolidates ignores for Python backend + JS/React frontend and common tooling
 
@@ -150,10 +149,3 @@ builddocs/
 # Ignore macOS temporary resource forks
 ###############
 ._*
-
-###############
-# END OF FILE
-=======
- # Secret files
-    backend/.env
->>>>>>> f20264f (added VSCode workspace & copilot-instructions.md)

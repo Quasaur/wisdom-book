@@ -71,8 +71,8 @@ class Content(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Content'
-        verbose_name_plural = 'Contents'
+        verbose_name = 'Thought Content'
+        verbose_name_plural = 'Thought Contents'
         indexes = [
             models.Index(fields=['neo4j_id']),
         ]
