@@ -21,6 +21,7 @@ interface Thought {
     slug: string;
     is_active: boolean;
     neo4j_id: string;
+    tags: string[];
     contents: Content[];
 }
 
@@ -97,6 +98,7 @@ const Thoughts: React.FC = () => {
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
             <div className="px-4 py-2 border-b border-border-color text-center">
                 <h2 className="text-xl font-bold mt-0">Thoughts</h2>
+                <p className="font-bold text-sm text-text-secondary mt-1 mb-0">Select a row to view its Details.</p>
             </div>
             <div className="px-4 pb-4 pt-2">
                 <div className="overflow-x-auto border border-blue-300 rounded-lg mb-4">
@@ -184,6 +186,21 @@ const Thoughts: React.FC = () => {
                                 <li>Status: {selectedThought.is_active ? 'Active' : 'Inactive'}</li>
                             </ul>
                         </div>
+                        {selectedThought.tags && selectedThought.tags.length > 0 && (
+                            <div>
+                                <h4 className="font-semibold mb-2">Tags</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedThought.tags.map((tag, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-2 py-1 bg-bg-secondary text-sm rounded-full border border-border-color"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Content Table */}
                         {selectedThought.contents && selectedThought.contents.length > 0 && (

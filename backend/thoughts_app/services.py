@@ -34,6 +34,7 @@ class ThoughtsService:
                    t.alias as title, 
                    t.description as description, 
                    t.en_description as en_description,
+                   t.tags as tags,
                    coalesce(parent.name, '') as parent_id,
                    collect({
                        id: c.name, 
@@ -90,6 +91,18 @@ class ThoughtsService:
                 'last_synced': timezone.now(),
             }
         )
+
+        # Sync tags
+        tags = thought_data.get('tags', [])
+        if isinstance(tags, str):
+            tags = [tags] if tags else []
+        
+        # Clear existing tags and add new ones
+        # Import here to avoid circular imports if any, though typically top-level is fine
+        from .models import ThoughtTag
+        ThoughtTag.objects.filter(thought=thought).delete()
+        for tag in tags:
+            ThoughtTag.objects.create(thought=thought, tag=tag)
         
         # Sync contents
         contents = thought_data.get('contents', [])
@@ -146,6 +159,5 @@ class ThoughtsService:
                 content_obj.delete()
         
         return thought
-
 # Global service instance
 thoughts_service = ThoughtsService()

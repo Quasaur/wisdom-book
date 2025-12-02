@@ -13,8 +13,14 @@ class ContentSerializer(serializers.ModelSerializer):
         ]
 
 class ThoughtSerializer(serializers.ModelSerializer):
+    tags = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='tag',
+        source='thought_tags'
+    )
     contents = ContentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Thought
-        fields = ['id', 'title', 'description', 'parent_id', 'slug', 'is_active', 'neo4j_id', 'contents']
+        fields = ['id', 'title', 'description', 'parent_id', 'slug', 'is_active', 'neo4j_id', 'tags', 'contents']

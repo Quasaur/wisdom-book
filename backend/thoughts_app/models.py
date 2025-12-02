@@ -79,3 +79,20 @@ class Content(models.Model):
 
     def __str__(self):
         return f"Content for {self.thought.title}"
+
+
+class ThoughtTag(models.Model):
+    """Tags for thoughts (separate model for better performance)"""
+    
+    thought = models.ForeignKey(Thought, on_delete=models.CASCADE, related_name='thought_tags')
+    tag = models.CharField(max_length=100, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['thought', 'tag']
+        indexes = [
+            models.Index(fields=['tag']),
+        ]
+    
+    def __str__(self):
+        return f"{self.thought.title} - {self.tag}"

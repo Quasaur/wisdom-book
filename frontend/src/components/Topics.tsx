@@ -98,6 +98,7 @@ const Topics: React.FC = () => {
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
             <div className="px-4 py-2 border-b border-border-color text-center">
                 <h2 className="text-xl font-bold mt-0">Topics</h2>
+                <p className="font-bold text-sm text-text-secondary mt-1 mb-0">Select a row to view its Details.</p>
             </div>
             <div className="px-4 pb-4 pt-2">
                 <div className="overflow-x-auto border border-blue-300 rounded-lg mb-4">
