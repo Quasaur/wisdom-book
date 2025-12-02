@@ -193,7 +193,7 @@ const Topics: React.FC = () => {
                                     {selectedTopic.tags.map((tag, index) => (
                                         <span
                                             key={index}
-                                            className="px-2 py-1 bg-bg-secondary text-xs rounded-full border border-border-color"
+                                            className="px-2 py-1 bg-bg-secondary text-sm rounded-full border border-border-color"
                                         >
                                             {tag}
                                         </span>

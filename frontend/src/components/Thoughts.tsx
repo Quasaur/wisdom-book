@@ -30,6 +30,7 @@ const Thoughts: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
 
     useEffect(() => {
@@ -58,13 +59,23 @@ const Thoughts: React.FC = () => {
         fetchThoughts();
     }, []);
 
+    // Filter thoughts based on search query
+    const filteredThoughts = thoughts.filter(thought =>
+        thought.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     // Calculate pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentThoughts = thoughts.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(thoughts.length / itemsPerPage);
+    const currentThoughts = filteredThoughts.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredThoughts.length / itemsPerPage);
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+    // Reset pagination when search query changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     if (loading) {
         return (
@@ -177,7 +188,7 @@ const Thoughts: React.FC = () => {
                         {/* Content Table */}
                         {selectedThought.contents && selectedThought.contents.length > 0 && (
                             <div className="mt-6">
-                                <h3 className="text-lg font-semibold text-gray-200 mb-2">Content</h3>
+                                <h4 className="font-semibold mb-1">Content</h4>
                                 <div className="overflow-x-auto border border-blue-300 rounded-lg">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
@@ -219,9 +230,24 @@ const Thoughts: React.FC = () => {
     );
 
     return (
-        <div className="flex gap-[60px] items-start">
-            {TC_Card_01}
-            {TC_Card_02}
+        <div className="flex flex-col gap-6 -mt-[30px]">
+            {/* Search Widget */}
+            <div className="flex justify-center">
+                <div className="w-full max-w-md">
+                    <input
+                        type="text"
+                        placeholder="Search thoughts..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-yellow-400 text-gray-200 focus:outline-none focus:border-accent transition-colors duration-200 placeholder-gray-500"
+                    />
+                </div>
+            </div>
+
+            <div className="flex gap-[60px] items-start">
+                {TC_Card_01}
+                {TC_Card_02}
+            </div>
         </div>
     );
 };
