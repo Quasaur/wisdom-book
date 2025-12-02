@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core.cache import cache
 # Adjusted import for wisdom-book structure
 from neo4j_app.neo4j_service import neo4j_service
-from .models import Topic, TopicTag, TopicSyncLog
+from .models import Topic, TopicTag, TopicSyncLog, Description
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,13 +51,15 @@ class TopicsService:
             # We fetch all topics (no limit) for the sync/cache
             query = """
             MATCH (t:TOPIC)
+            OPTIONAL MATCH (t)-[:HAS_DESCRIPTION]->(d:DESCRIPTION)
             RETURN t.name as id, 
                    t.alias as title, 
                    t.description as description, 
                    t.en_description as en_description,
                    t.level as level, 
                    t.parent as parent, 
-                   t.tags as tags
+                   t.tags as tags,
+                   collect({id: d.name, content: coalesce(d.en_content, '')}) as descriptions
             ORDER BY t.level, t.alias
             """
             topics = self.neo4j.run_query(query, query_name="get_all_topics_full")
@@ -309,6 +311,11 @@ class TopicsService:
             tags = [tags] if tags else []
         enhanced['tags'] = tags
         
+        # Format descriptions
+        descriptions = enhanced.get('descriptions', [])
+        # Filter out empty descriptions (from OPTIONAL MATCH where no description exists)
+        enhanced['descriptions'] = [d for d in descriptions if d.get('id')]
+        
         # Add display title
         enhanced['display_title'] = enhanced.get('title') or enhanced.get('id', 'Untitled')
         
@@ -385,6 +392,41 @@ class TopicsService:
         TopicTag.objects.filter(topic=topic).delete()
         for tag in tags:
             TopicTag.objects.create(topic=topic, tag=tag)
+            
+        # Sync descriptions
+        descriptions = topic_data.get('descriptions', [])
+        
+        # Get existing descriptions for this topic
+        existing_descriptions = {d.neo4j_id: d for d in Description.objects.filter(topic=topic)}
+        processed_ids = set()
+        
+        for desc_data in descriptions:
+            desc_id = desc_data.get('id')
+            content = desc_data.get('content', '')
+            
+            if not desc_id:
+                continue
+                
+            processed_ids.add(desc_id)
+            
+            if desc_id in existing_descriptions:
+                # Update existing
+                desc = existing_descriptions[desc_id]
+                if desc.content != content:
+                    desc.content = content
+                    desc.save()
+            else:
+                # Create new
+                Description.objects.create(
+                    topic=topic,
+                    neo4j_id=desc_id,
+                    content=content
+                )
+        
+        # Delete descriptions that no longer exist in Neo4j for this topic
+        for desc_id, desc in existing_descriptions.items():
+            if desc_id not in processed_ids:
+                desc.delete()
         
         return topic
     

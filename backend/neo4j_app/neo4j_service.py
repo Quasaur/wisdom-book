@@ -4,6 +4,7 @@ import logging
 from threading import RLock
 from typing import Any, Dict, List, Optional, Tuple
 
+import neo4j
 from neo4j import GraphDatabase, Driver, Session
 from neo4j.exceptions import (
     ServiceUnavailable,

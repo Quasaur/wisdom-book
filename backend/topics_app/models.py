@@ -90,6 +90,28 @@ class Topic(models.Model):
             return f"/topics/{self.slug}"
 
 
+class Description(models.Model):
+    """
+    Description model for storing Neo4j DESCRIPTION nodes
+    Linked to Topic via HAS_DESCRIPTION relationship
+    """
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='descriptions')
+    neo4j_id = models.CharField(max_length=255, unique=True, db_index=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Description'
+        verbose_name_plural = 'Descriptions'
+        indexes = [
+            models.Index(fields=['neo4j_id']),
+        ]
+
+    def __str__(self):
+        return f"Description for {self.topic.title}"
+
+
 class TopicTag(models.Model):
     """Tags for topics (separate model for better performance)"""
     

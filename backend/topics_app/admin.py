@@ -3,7 +3,8 @@ from django.utils.html import format_html
 from django.urls import path
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from .models import Topic, TopicTag, TopicSyncLog
+from .models import Topic, TopicTag, TopicSyncLog, Description
+from .services import topics_service
 
 
 class TopicTagInline(admin.TabularInline):
@@ -11,6 +12,17 @@ class TopicTagInline(admin.TabularInline):
     model = TopicTag
     extra = 1
     fields = ['tag']
+
+
+@admin.register(Description)
+class DescriptionAdmin(admin.ModelAdmin):
+    list_display = ('neo4j_id', 'topic', 'short_content', 'created_at')
+    search_fields = ('neo4j_id', 'content', 'topic__title')
+    list_filter = ('created_at',)
+    
+    def short_content(self, obj):
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    short_content.short_description = 'Content'
 
 
 @admin.register(Topic)
