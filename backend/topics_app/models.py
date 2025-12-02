@@ -97,7 +97,24 @@ class Description(models.Model):
     """
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='descriptions')
     neo4j_id = models.CharField(max_length=255, unique=True, db_index=True)
-    content = models.TextField()
+    content = models.TextField(blank=True)  # Keeping as fallback/generic
+    
+    # Language specific fields
+    en_title = models.CharField(max_length=255, blank=True)
+    en_content = models.TextField(blank=True)
+    
+    es_title = models.CharField(max_length=255, blank=True)
+    es_content = models.TextField(blank=True)
+    
+    fr_title = models.CharField(max_length=255, blank=True)
+    fr_content = models.TextField(blank=True)
+    
+    hi_title = models.CharField(max_length=255, blank=True)
+    hi_content = models.TextField(blank=True)
+    
+    zh_title = models.CharField(max_length=255, blank=True)
+    zh_content = models.TextField(blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

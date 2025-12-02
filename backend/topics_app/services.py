@@ -59,7 +59,15 @@ class TopicsService:
                    t.level as level, 
                    t.parent as parent, 
                    t.tags as tags,
-                   collect({id: d.name, content: coalesce(d.en_content, '')}) as descriptions
+                   collect({
+                       id: d.name, 
+                       content: coalesce(d.en_content, ''),
+                       en_title: d.en_title, en_content: d.en_content,
+                       es_title: d.es_title, es_content: d.es_content,
+                       fr_title: d.fr_title, fr_content: d.fr_content,
+                       hi_title: d.hi_title, hi_content: d.hi_content,
+                       zh_title: d.zh_title, zh_content: d.zh_content
+                   }) as descriptions
             ORDER BY t.level, t.alias
             """
             topics = self.neo4j.run_query(query, query_name="get_all_topics_full")
@@ -412,15 +420,34 @@ class TopicsService:
             if desc_id in existing_descriptions:
                 # Update existing
                 desc = existing_descriptions[desc_id]
-                if desc.content != content:
-                    desc.content = content
-                    desc.save()
+                desc.content = content
+                desc.en_title = desc_data.get('en_title') or ''
+                desc.en_content = desc_data.get('en_content') or ''
+                desc.es_title = desc_data.get('es_title') or ''
+                desc.es_content = desc_data.get('es_content') or ''
+                desc.fr_title = desc_data.get('fr_title') or ''
+                desc.fr_content = desc_data.get('fr_content') or ''
+                desc.hi_title = desc_data.get('hi_title') or ''
+                desc.hi_content = desc_data.get('hi_content') or ''
+                desc.zh_title = desc_data.get('zh_title') or ''
+                desc.zh_content = desc_data.get('zh_content') or ''
+                desc.save()
             else:
                 # Create new
                 Description.objects.create(
                     topic=topic,
                     neo4j_id=desc_id,
-                    content=content
+                    content=content,
+                    en_title=desc_data.get('en_title') or '',
+                    en_content=desc_data.get('en_content') or '',
+                    es_title=desc_data.get('es_title') or '',
+                    es_content=desc_data.get('es_content') or '',
+                    fr_title=desc_data.get('fr_title') or '',
+                    fr_content=desc_data.get('fr_content') or '',
+                    hi_title=desc_data.get('hi_title') or '',
+                    hi_content=desc_data.get('hi_content') or '',
+                    zh_title=desc_data.get('zh_title') or '',
+                    zh_content=desc_data.get('zh_content') or ''
                 )
         
         # Delete descriptions that no longer exist in Neo4j for this topic
