@@ -8,6 +8,7 @@ interface Topic {
     slug: string;
     is_active: boolean;
     neo4j_id: string;
+    tags: string[];
 }
 
 const Topics: React.FC = () => {
@@ -15,6 +16,8 @@ const Topics: React.FC = () => {
     const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchTopics = async () => {
@@ -42,6 +45,14 @@ const Topics: React.FC = () => {
         fetchTopics();
     }, []);
 
+    // Calculate pagination
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentTopics = topics.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(topics.length / itemsPerPage);
+
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
     if (loading) {
         return (
             <div className="card !p-0 overflow-hidden min-h-[400px] flex items-center justify-center">
@@ -64,7 +75,7 @@ const Topics: React.FC = () => {
                 <h2 className="text-xl font-bold mt-0">Topics</h2>
             </div>
             <div className="p-4">
-                <div className="overflow-x-auto border border-blue-300 rounded-lg">
+                <div className="overflow-x-auto border border-blue-300 rounded-lg mb-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-bg-secondary text-text-secondary border-b-2 border-gray-600">
@@ -73,7 +84,7 @@ const Topics: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {topics.map((topic, index) => {
+                            {currentTopics.map((topic, index) => {
                                 const isSelected = selectedTopic?.id === topic.id;
                                 return (
                                     <tr
@@ -92,6 +103,33 @@ const Topics: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex justify-between items-center px-2">
+                        <button
+                            onClick={() => paginate(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-1 rounded text-sm ${currentPage === 1
+                                ? 'text-text-secondary opacity-50 cursor-not-allowed'
+                                : 'text-yellow-400 hover:bg-bg-secondary'}`}
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-text-secondary">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-1 rounded text-sm ${currentPage === totalPages
+                                ? 'text-text-secondary opacity-50 cursor-not-allowed'
+                                : 'text-yellow-400 hover:bg-bg-secondary'}`}
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -123,6 +161,21 @@ const Topics: React.FC = () => {
                                 <li>Status: {selectedTopic.is_active ? 'Active' : 'Inactive'}</li>
                             </ul>
                         </div>
+                        {selectedTopic.tags && selectedTopic.tags.length > 0 && (
+                            <div>
+                                <h4 className="font-semibold mb-2">Tags</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedTopic.tags.map((tag, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-2 py-1 bg-bg-secondary text-text-secondary text-xs rounded-full border border-border-color"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="text-text-secondary italic">Select a topic to view details</div>
