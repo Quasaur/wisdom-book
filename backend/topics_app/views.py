@@ -1,12 +1,10 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from .models import Topic
+from .serializers import TopicSerializer
 
 class TopicsPageView(APIView):
     def get(self, request):
-        data = {
-            "title": "Topics",
-            "subtitle": "Explore the Wisdom Book by Topic",
-            "content": "<p>This is the Topics page content. It will eventually list all available topics.</p>"
-        }
-        return Response(data)
+        topics = Topic.objects.filter(is_active=True).order_by('level', 'title')
+        serializer = TopicSerializer(topics, many=True)
+        return Response(serializer.data)
