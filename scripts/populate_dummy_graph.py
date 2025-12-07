@@ -32,7 +32,15 @@ def populate_dummy_data():
             MATCH (t:TOPIC {name: $name})
             MERGE (d:DESCRIPTION {name: 'desc.' + $name})
             SET d.en_content = 'Detailed content description for ' + $name + '.',
-                d.en_title = $name + ' Description'
+                d.en_title = $name + ' Description',
+                d.es_content = 'Descripción detallada del contenido para ' + $name + '.',
+                d.es_title = 'Descripción de ' + $name,
+                d.fr_content = 'Description détaillée du contenu pour ' + $name + '.',
+                d.fr_title = 'Description de ' + $name,
+                d.hi_content = $name + ' का विस्तृत विवरण।',
+                d.hi_title = $name + ' विवरण',
+                d.zh_content = $name + ' 的详细内容描述。',
+                d.zh_title = $name + ' 描述'
             MERGE (t)-[:HAS_DESCRIPTION]->(d)
             """
             neo4j_service.run_query(desc_query, {"name": t}, write=True)
