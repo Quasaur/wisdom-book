@@ -3,7 +3,8 @@ import django
 import sys
 
 # Add backend to path
-sys.path.append('/Users/quasaur/Developer/wisdom-book/backend')
+# Add backend to path
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wisdom_book.settings')
 django.setup()
 
