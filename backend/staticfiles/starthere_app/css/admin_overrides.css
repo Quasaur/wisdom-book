@@ -1,0 +1,14 @@
+:root {
+    --nav-sidebar-width: 300px;
+    /* Increased again by 5% */
+}
+
+/* Fallback for older Django versions or if variable isn't used */
+#nav-sidebar {
+    width: 300px !important;
+}
+
+/* Adjust main content margin to match */
+.main>.content {
+    margin-left: 300px !important;
+}
