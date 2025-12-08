@@ -33,6 +33,7 @@ const Topics: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
 
     useEffect(() => {
         const fetchTopics = async () => {
@@ -221,38 +222,71 @@ const Topics: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Description Table */}
+                        {/* Description Section with Language Dropdown */}
                         {selectedTopic.descriptions && selectedTopic.descriptions.length > 0 && (
                             <div className="mt-6">
-                                <h4 className="content-section-header">Description</h4>
-                                <div className="content-table-container">
-                                    <table className="content-table">
-                                        <thead>
-                                            <tr className="content-table-head-row">
-                                                <th className="content-table-th w-24">Language</th>
-                                                <th className="content-table-th w-48">Title</th>
-                                                <th className="content-table-th">Content</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {[
-                                                { lang: 'English', title: selectedTopic.descriptions[0].en_title, content: selectedTopic.descriptions[0].en_content },
-                                                { lang: 'Spanish', title: selectedTopic.descriptions[0].es_title, content: selectedTopic.descriptions[0].es_content },
-                                                { lang: 'French', title: selectedTopic.descriptions[0].fr_title, content: selectedTopic.descriptions[0].fr_content },
-                                                { lang: 'Hindi', title: selectedTopic.descriptions[0].hi_title, content: selectedTopic.descriptions[0].hi_content },
-                                                { lang: 'Chinese', title: selectedTopic.descriptions[0].zh_title, content: selectedTopic.descriptions[0].zh_content },
-                                            ].map((row, index) => (
-                                                <tr
-                                                    key={index}
-                                                    className={index % 2 === 1 ? 'content-table-row-odd' : 'content-table-row-even'}
-                                                >
-                                                    <td className="content-table-cell font-medium align-top">{row.lang}</td>
-                                                    <td className="content-table-cell align-top">{row.title}</td>
-                                                    <td className="content-table-cell">{row.content}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <h4 className="content-section-header mb-2">Description</h4>
+                                <div className="border border-blue-300 rounded-lg p-4 space-y-4 relative">
+                                    <div className="flex justify-end mb-2">
+                                        <select
+                                            value={selectedLanguage}
+                                            onChange={(e) => setSelectedLanguage(e.target.value)}
+                                            className="bg-gray-800 border border-yellow-400 text-gray-200 text-sm rounded px-3 py-1 focus:outline-none focus:border-accent cursor-pointer"
+                                        >
+                                            <option value="en">English</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="hi">Hindi</option>
+                                            <option value="zh">Chinese</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Link local variables for cleaner render logic */}
+                                    {(() => {
+                                        const desc = selectedTopic.descriptions[0];
+                                        let title = desc.en_title;
+                                        let content = desc.en_content;
+
+                                        switch (selectedLanguage) {
+                                            case 'es':
+                                                title = desc.es_title;
+                                                content = desc.es_content;
+                                                break;
+                                            case 'fr':
+                                                title = desc.fr_title;
+                                                content = desc.fr_content;
+                                                break;
+                                            case 'hi':
+                                                title = desc.hi_title;
+                                                content = desc.hi_content;
+                                                break;
+                                            case 'zh':
+                                                title = desc.zh_title;
+                                                content = desc.zh_content;
+                                                break;
+                                            default:
+                                                title = desc.en_title;
+                                                content = desc.en_content;
+                                        }
+
+                                        return (
+                                            <>
+                                                <div className="bg-primary-bg/40 p-3 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Title</span>
+                                                    <div className="text-gray-100 font-medium text-lg pr-4 pt-1">
+                                                        {title || <span className="text-gray-500 italic text-sm">No title available</span>}
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-primary-bg/40 p-4 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors min-h-[100px]">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Content</span>
+                                                    <div className="text-gray-300 leading-relaxed pt-1">
+                                                        {content || <span className="text-gray-500 italic text-sm">No content available</span>}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         )}
