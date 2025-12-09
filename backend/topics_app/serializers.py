@@ -23,4 +23,4 @@ class TopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ['id', 'level', 'title', 'description', 'slug', 'is_active', 'neo4j_id', 'tags', 'descriptions']
+        fields = ['id', 'level', 'title', 'description', 'slug', 'is_active', 'neo4j_id', 'tags', 'descriptions', 'parent_id']

@@ -204,9 +204,10 @@ const Topics: React.FC = () => {
                                         {/* Parent Field (Conditional) */}
                                         {selectedTopic.level >= 1 && selectedTopic.parent_id && (
                                             <tr className="details-row-odd">
-                                                <td className="details-cell-label" colSpan={2}>
+                                                <td className="details-cell-label">
                                                     <span className="details-label-text">Parent:</span> {selectedTopic.parent_id}
                                                 </td>
+                                                <td className="details-cell-value"></td>
                                             </tr>
                                         )}
                                     </tbody>
