@@ -22,7 +22,9 @@ interface Topic {
     is_active: boolean;
     neo4j_id: string;
     tags: string[];
+    labels?: string[];
     descriptions: Description[];
+    parent_id?: string;
 }
 
 const Topics: React.FC = () => {
@@ -171,16 +173,13 @@ const Topics: React.FC = () => {
             <div className="px-6 pb-6 pt-3">
                 {selectedTopic ? (
                     <div className="space-y-4 text-gray-300">
+                        {/* 1. Title and Level */}
                         <div>
                             <h3 className="text-lg font-semibold text-accent">{selectedTopic.title}</h3>
                             <p className="text-sm">Level: {selectedTopic.level}</p>
                         </div>
-                        {selectedTopic.description && (
-                            <div>
-                                <h4 className="font-semibold mb-1">Description</h4>
-                                <p>{selectedTopic.description}</p>
-                            </div>
-                        )}
+
+                        {/* 2. Details Table */}
                         <div>
                             <h4 className="font-semibold mb-1">Details</h4>
                             <div className="details-table-container">
@@ -202,15 +201,25 @@ const Topics: React.FC = () => {
                                                 <span className="details-label-text">Status:</span> {selectedTopic.is_active ? 'Active' : 'Inactive'}
                                             </td>
                                         </tr>
+                                        {/* Parent Field (Conditional) */}
+                                        {selectedTopic.level >= 1 && selectedTopic.parent_id && (
+                                            <tr className="details-row-odd">
+                                                <td className="details-cell-label" colSpan={2}>
+                                                    <span className="details-label-text">Parent:</span> {selectedTopic.parent_id}
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        {selectedTopic.tags && selectedTopic.tags.length > 0 && (
+
+                        {/* 3. Tags Section */}
+                        {((selectedTopic.tags && selectedTopic.tags.length > 0) || (selectedTopic.labels && selectedTopic.labels.length > 0)) && (
                             <div>
                                 <h4 className="tags-section-header">Tags</h4>
                                 <div className="tags-container">
-                                    {selectedTopic.tags.map((tag, index) => (
+                                    {(selectedTopic.tags && selectedTopic.tags.length > 0 ? selectedTopic.tags : selectedTopic.labels || []).map((tag, index) => (
                                         <span
                                             key={index}
                                             className="tag-pill"
@@ -222,7 +231,7 @@ const Topics: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Description Section with Language Dropdown */}
+                        {/* 4. Description Section with Language Dropdown */}
                         {selectedTopic.descriptions && selectedTopic.descriptions.length > 0 && (
                             <div className="mt-6">
                                 <h4 className="content-section-header mb-2">Description</h4>

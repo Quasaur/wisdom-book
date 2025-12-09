@@ -379,6 +379,14 @@ class TopicsService:
         neo4j_id = topic_data.get('id')
         if not neo4j_id:
             return
+
+        # DATA INTEGRITY FILTER
+        # Only allow topics that start with 'Topic: '
+        # Exception: "Topic ZERO" is allowed
+        title = topic_data.get('title', '')
+        if not title.startswith('Topic: ') and not title.startswith('Topic ZERO'):
+             logger.warning(f"Skipping phantom topic during sync: {title} ({neo4j_id})")
+             return
         
         topic, created = Topic.objects.update_or_create(
             neo4j_id=neo4j_id,
