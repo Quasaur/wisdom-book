@@ -15,6 +15,7 @@ interface Content {
 
 interface Thought {
     id: number;
+    level: number;
     title: string;
     description: string;
     parent_id: string | null;
@@ -33,6 +34,7 @@ const Thoughts: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
 
     useEffect(() => {
         const fetchThoughts = async () => {
@@ -107,8 +109,8 @@ const Thoughts: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic">
+                                <th className="p-3 font-semibold">Thought Level</th>
                                 <th className="p-3 font-semibold">Thought Name</th>
-                                <th className="p-3 font-semibold">Parent Topic</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,8 +125,8 @@ const Thoughts: React.FC = () => {
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
                                     >
-                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{thought.title}</td>
-                                        <td className="p-3 border-b border-border-color">{thought.parent_id || '-'}</td>
+                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{thought.level}</td>
+                                        <td className="p-3 border-b border-border-color">{thought.title}</td>
                                     </tr>
                                 );
                             })}
@@ -172,6 +174,7 @@ const Thoughts: React.FC = () => {
                     <div className="space-y-4 text-gray-300">
                         <div>
                             <h3 className="text-lg font-semibold text-accent">{selectedThought.title}</h3>
+                            <p className="text-sm">Level: {selectedThought.level}</p>
                         </div>
                         {selectedThought.description && (
                             <div>
@@ -200,6 +203,14 @@ const Thoughts: React.FC = () => {
                                                 <span className="details-label-text">Status:</span> {selectedThought.is_active ? 'Active' : 'Inactive'}
                                             </td>
                                         </tr>
+                                        {selectedThought.parent_id && (
+                                            <tr className="details-row-odd">
+                                                <td className="details-cell-label">
+                                                    <span className="details-label-text">Parent:</span> {selectedThought.parent_id}
+                                                </td>
+                                                <td className="details-cell-value"></td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -220,38 +231,71 @@ const Thoughts: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Content Table */}
+                        {/* Content Section with Language Dropdown */}
                         {selectedThought.contents && selectedThought.contents.length > 0 && (
                             <div className="mt-6">
-                                <h4 className="content-section-header">Content</h4>
-                                <div className="content-table-container">
-                                    <table className="content-table">
-                                        <thead>
-                                            <tr className="content-table-head-row">
-                                                <th className="content-table-th w-24">Language</th>
-                                                <th className="content-table-th w-48">Title</th>
-                                                <th className="content-table-th">Content</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {[
-                                                { lang: 'English', title: selectedThought.contents[0].en_title, content: selectedThought.contents[0].en_content },
-                                                { lang: 'Spanish', title: selectedThought.contents[0].es_title, content: selectedThought.contents[0].es_content },
-                                                { lang: 'French', title: selectedThought.contents[0].fr_title, content: selectedThought.contents[0].fr_content },
-                                                { lang: 'Hindi', title: selectedThought.contents[0].hi_title, content: selectedThought.contents[0].hi_content },
-                                                { lang: 'Chinese', title: selectedThought.contents[0].zh_title, content: selectedThought.contents[0].zh_content },
-                                            ].map((row, index) => (
-                                                <tr
-                                                    key={index}
-                                                    className={index % 2 === 1 ? 'content-table-row-odd' : 'content-table-row-even'}
-                                                >
-                                                    <td className="content-table-cell font-medium align-top">{row.lang}</td>
-                                                    <td className="content-table-cell align-top">{row.title}</td>
-                                                    <td className="content-table-cell">{row.content}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <h4 className="content-section-header mb-2">Content</h4>
+                                <div className="border border-blue-300 rounded-lg p-4 space-y-4 relative">
+                                    <div className="flex justify-end mb-2">
+                                        <select
+                                            value={selectedLanguage}
+                                            onChange={(e) => setSelectedLanguage(e.target.value)}
+                                            className="bg-gray-800 border border-yellow-400 text-gray-200 text-sm rounded px-3 py-1 focus:outline-none focus:border-accent cursor-pointer"
+                                        >
+                                            <option value="en">English</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="hi">Hindi</option>
+                                            <option value="zh">Chinese</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Link local variables for cleaner render logic */}
+                                    {(() => {
+                                        const contentObj = selectedThought.contents[0];
+                                        let title = contentObj.en_title;
+                                        let content = contentObj.en_content;
+
+                                        switch (selectedLanguage) {
+                                            case 'es':
+                                                title = contentObj.es_title;
+                                                content = contentObj.es_content;
+                                                break;
+                                            case 'fr':
+                                                title = contentObj.fr_title;
+                                                content = contentObj.fr_content;
+                                                break;
+                                            case 'hi':
+                                                title = contentObj.hi_title;
+                                                content = contentObj.hi_content;
+                                                break;
+                                            case 'zh':
+                                                title = contentObj.zh_title;
+                                                content = contentObj.zh_content;
+                                                break;
+                                            default:
+                                                title = contentObj.en_title;
+                                                content = contentObj.en_content;
+                                        }
+
+                                        return (
+                                            <>
+                                                <div className="bg-primary-bg/40 p-3 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Title</span>
+                                                    <div className="text-gray-100 font-medium text-lg pr-4 pt-1">
+                                                        {title || <span className="text-gray-500 italic text-sm">No title available</span>}
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-primary-bg/40 p-4 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors min-h-[100px]">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Content</span>
+                                                    <div className="text-gray-300 leading-relaxed pt-1">
+                                                        {content || <span className="text-gray-500 italic text-sm">No content available</span>}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         )}

@@ -33,6 +33,7 @@ class ThoughtsService:
             RETURN t.name as id, 
                    t.alias as title, 
                    t.description as description, 
+                   t.level as level,
                    t.en_description as en_description,
                    t.tags as tags,
                    parent.name as parent_id,
@@ -45,7 +46,7 @@ class ThoughtsService:
                        hi_title: c.hi_title, hi_content: c.hi_content,
                        zh_title: c.zh_title, zh_content: c.zh_content
                    }) as contents
-            ORDER BY t.alias
+            ORDER BY t.level, t.alias
             """
             thoughts = self.neo4j.run_query(query, query_name="get_all_thoughts_full")
             return thoughts
@@ -96,6 +97,7 @@ class ThoughtsService:
             defaults={
                 'title': thought_data.get('title', ''),
                 'description': thought_data.get('description') or thought_data.get('en_description') or '',
+                'level': thought_data.get('level', 0),
                 'parent_id': thought_data.get('parent_id'),
                 'last_synced': timezone.now(),
             }

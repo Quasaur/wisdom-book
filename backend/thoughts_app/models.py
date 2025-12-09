@@ -11,6 +11,7 @@ class Thought(models.Model):
                                help_text="Corresponding Neo4j node ID")
     title = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True)
+    level = models.IntegerField(default=0)
     parent_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID of the parent topic/thought")
     
     # Additional Django-specific fields
@@ -24,7 +25,7 @@ class Thought(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     
     class Meta:
-        ordering = ['title']
+        ordering = ['level', 'title']
         verbose_name = 'Thought'
         verbose_name_plural = 'Thoughts'
         indexes = [

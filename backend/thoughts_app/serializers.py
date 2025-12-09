@@ -23,4 +23,4 @@ class ThoughtSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Thought
-        fields = ['id', 'title', 'description', 'parent_id', 'slug', 'is_active', 'neo4j_id', 'tags', 'contents']
+        fields = ['id', 'title', 'description', 'level', 'parent_id', 'slug', 'is_active', 'neo4j_id', 'tags', 'contents']
