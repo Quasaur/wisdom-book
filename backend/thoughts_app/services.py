@@ -23,19 +23,19 @@ class ThoughtsService:
     
     def get_all_thoughts(self) -> List[Dict]:
         """
-        Get all thoughts from Neo4j
+        Get all thoughts from Neo4j that have a valid parent TOPIC.
+        Thoughts without a parent topic are considered 'phantoms' and excluded.
         """
         try:
             query = """
-            MATCH (t:THOUGHT)
-            OPTIONAL MATCH (parent)-[:HAS_THOUGHT]->(t)
+            MATCH (parent:TOPIC)-[:HAS_THOUGHT]->(t:THOUGHT)
             OPTIONAL MATCH (t)-[:HAS_CONTENT]->(c:CONTENT)
             RETURN t.name as id, 
                    t.alias as title, 
                    t.description as description, 
                    t.en_description as en_description,
                    t.tags as tags,
-                   coalesce(parent.name, '') as parent_id,
+                   parent.name as parent_id,
                    collect({
                        id: c.name, 
                        content: coalesce(c.en_content, ''),
@@ -56,20 +56,29 @@ class ThoughtsService:
 
     def sync_thoughts_from_neo4j(self) -> Tuple[bool, str, int]:
         """
-        Sync thoughts from Neo4j to Django models
+        Sync thoughts from Neo4j to Django models.
+        Removes any local thoughts that are not present in the Neo4j response.
         """
         try:
             neo4j_thoughts = self.get_all_thoughts()
             records_processed = 0
+            processed_ids = set()
             
             for thought_data in neo4j_thoughts:
                 try:
-                    self._sync_single_thought(thought_data)
-                    records_processed += 1
+                    thought = self._sync_single_thought(thought_data)
+                    if thought:
+                        processed_ids.add(thought.neo4j_id)
+                        records_processed += 1
                 except Exception as e:
                     logger.error(f"Error syncing thought {thought_data.get('id')}: {e}")
             
-            return True, f"Successfully synced {records_processed} thoughts", records_processed
+            # Remove stale/phantom thoughts
+            deleted_count, _ = Thought.objects.exclude(neo4j_id__in=processed_ids).delete()
+            if deleted_count > 0:
+                logger.info(f"Removed {deleted_count} phantom/stale thoughts")
+            
+            return True, f"Successfully synced {records_processed} thoughts. Removed {deleted_count} stale.", records_processed
             
         except Exception as e:
             error_msg = f"Sync failed: {str(e)}"

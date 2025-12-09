@@ -95,9 +95,10 @@ class TestNeo4jServiceErrorHandling(unittest.TestCase):
         mock_result.data.return_value = {"key": "value"}
         
         # First call raises TransientError, second call returns mock_result
+        # First call raises TransientError, second call returns mock_result
         mock_session.run.side_effect = [
             TransientError("Temporary failure"),
-            MagicMock(side_effect=lambda: [mock_result])
+            [mock_result]
         ]
         
         # Call method
