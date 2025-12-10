@@ -215,7 +215,7 @@ class Neo4jService:
 
     def health(self) -> bool:
         try:
-            res = self.run_query("RETURN 1 AS ok")
+            res = self.run_query("RETURN 1 AS ok", max_retries=0)
             return bool(res and res[0].get("ok") == 1)
         except Exception:
             return False
