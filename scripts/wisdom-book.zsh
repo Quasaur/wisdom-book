@@ -150,6 +150,11 @@ open_chrome() {
 case "$1" in
     start)
         echo "${GREEN}Starting Wisdom Book services...${NC}"
+        # Activate Python environment
+        if [[ -f "$PROJECT_DIR/.venv/bin/activate" ]]; then
+            source "$PROJECT_DIR/.venv/bin/activate"
+            echo "${GREEN}✓ Python environment activated${NC}"
+        fi
         start_backend
         start_frontend
         open_chrome
@@ -161,13 +166,29 @@ case "$1" in
         echo "${RED}Stopping Wisdom Book services...${NC}"
         stop_backend
         stop_frontend
+        # Deactivate Python environment if function exists
+        if type deactivate > /dev/null 2>&1; then
+            deactivate
+            echo "${GREEN}✓ Python environment deactivated${NC}"
+        fi
         echo "${GREEN}All services stopped!${NC}"
         ;;
     restart)
         echo "${YELLOW}Restarting Wisdom Book services...${NC}"
         stop_backend
         stop_frontend
+        # Deactivate if active before restarting (clean slate)
+        if type deactivate > /dev/null 2>&1; then
+            deactivate
+        fi
+        
         sleep 2
+        
+        # Activate Python environment
+        if [[ -f "$PROJECT_DIR/.venv/bin/activate" ]]; then
+            source "$PROJECT_DIR/.venv/bin/activate"
+            echo "${GREEN}✓ Python environment activated${NC}"
+        fi
         start_backend
         start_frontend
         open_chrome
