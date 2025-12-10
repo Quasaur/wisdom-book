@@ -27,13 +27,16 @@ class QuotesService:
         try:
             query = """
             MATCH (q:QUOTE)
+            OPTIONAL MATCH (t:TOPIC)-[:HAS_QUOTE]->(q)
             OPTIONAL MATCH (q)-[:HAS_CONTENT]->(c:CONTENT)
             RETURN q.name as id, 
                    q.alias as title, 
                    q.author as author,
+                   q.level as level,
                    q.source as source,
                    q.booklink as book_link,
                    q.tags as tags,
+                   t.name as parent_id,
                    collect({
                        id: c.name, 
                        content: coalesce(c.en_content, ''),
@@ -79,12 +82,24 @@ class QuotesService:
         neo4j_id = quote_data.get('id')
         if not neo4j_id:
             return
+
+        # Resolve parent topic if available
+        parent_id = quote_data.get('parent_id')
+        parent_topic = None
+        if parent_id:
+            from topics_app.models import Topic
+            try:
+                parent_topic = Topic.objects.get(neo4j_id=parent_id)
+            except Topic.DoesNotExist:
+                logger.warning(f"Parent topic {parent_id} not found for quote {neo4j_id}")
         
         quote, created = Quote.objects.update_or_create(
             neo4j_id=neo4j_id,
             defaults={
                 'title': quote_data.get('title') or '',
                 'author': quote_data.get('author') or '',
+                'level': quote_data.get('level') or 0,
+                'parent': parent_topic,
                 'source': quote_data.get('source') or '',
                 'book_link': quote_data.get('book_link') or '',
                 'last_synced': timezone.now(),

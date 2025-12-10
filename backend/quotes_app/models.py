@@ -10,6 +10,8 @@ class Quote(models.Model):
                                help_text="Corresponding Neo4j node ID")
     title = models.CharField(max_length=255, db_index=True)
     author = models.CharField(max_length=255, blank=True)
+    level = models.IntegerField(default=0, db_index=True)
+    parent = models.ForeignKey('topics_app.Topic', on_delete=models.SET_NULL, null=True, blank=True, related_name='quotes')
     source = models.CharField(max_length=255, blank=True)
     book_link = models.CharField(max_length=500, blank=True, help_text="URL to the book")
     
