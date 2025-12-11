@@ -352,11 +352,9 @@ const Tags: React.FC = () => {
             ) : (
                 <>
                     <div className="pb-4 border-b border-gray-700 mb-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <h2 className="card-title">Items</h2>
-                            </div>
-                            <span className="text-gray-400 text-sm">{filteredSources.length} items</span>
+                        <div className="relative flex justify-center items-center mb-4">
+                            <h2 className="card-title">Items</h2>
+                            <span className="text-gray-400 text-sm absolute right-0">{filteredSources.length} items</span>
                         </div>
 
                         <div className="flex gap-2">
@@ -432,11 +430,9 @@ const Tags: React.FC = () => {
                 )
             ) : (
                 <div className="h-full flex flex-col">
-                    <div className="pb-4 border-b border-gray-700 mb-4 flex justify-between items-center">
-                        <div>
-                            <h2 className="card-title">Content / Description</h2>
-                        </div>
-                        <div>
+                    <div className="pb-4 border-b border-gray-700 mb-4 relative flex justify-center items-center">
+                        <h2 className="card-title">Content / Description</h2>
+                        <div className="absolute right-0">
                             <select
                                 value={selectedLanguage}
                                 onChange={(e) => setSelectedLanguage(e.target.value)}
