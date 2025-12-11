@@ -42,6 +42,29 @@
     @apply flex justify-between px-3 pb-2 border-b border-gray-700 mb-2 font-semibold text-gray-400 text-sm tracking-wider capitalize;
   }
 
+  /* Global Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1f2937;
+    /* gray-800 */
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #4fd1c5;
+    /* teal-300 / light turquoise */
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2dd4bf;
+    /* teal-400 */
+  }
+
   /* Details Table Styles */
   .details-table-container {
     @apply overflow-x-auto border border-blue-300 rounded-lg;
