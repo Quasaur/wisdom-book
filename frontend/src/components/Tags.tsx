@@ -258,9 +258,9 @@ const Tags: React.FC = () => {
             </div>
 
             {/* Column Headers */}
-            <div className="flex justify-between px-3 pb-2 border-b border-gray-700 mb-2 font-semibold text-gray-400 text-sm uppercase tracking-wider">
-                <span>Count</span>
+            <div className="table-header">
                 <span>Tag</span>
+                <span>Count</span>
             </div>
 
             {/* Scrollable List */}
@@ -284,8 +284,8 @@ const Tags: React.FC = () => {
                             className={`py-1.5 px-3 mb-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-700 flex justify-between items-center ${selectedTag?.name === tag.name ? 'bg-blue-900/50 border border-blue-500' : 'bg-gray-800/50 border border-transparent'
                                 }`}
                         >
-                            <span className="bg-gray-600 text-xs px-2 py-1 rounded-full text-gray-300">{tag.count}</span>
                             <span className="font-medium text-base text-gray-200">{tag.name}</span>
+                            <span className="bg-gray-600 text-xs px-2 py-1 rounded-full text-gray-300">{tag.count}</span>
                         </div>
                     ))
                 )}
