@@ -140,21 +140,3 @@
     @apply py-2 px-3 border-b border-border-color;
   }
 }
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-primary-bg;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-border-color rounded;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-text-secondary;
-}

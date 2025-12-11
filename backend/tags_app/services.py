@@ -14,13 +14,14 @@ class TagSyncService:
         """
         logger.info("Starting Tag Sync...")
         total_processed = 0
+        valid_ids = []
         
         # Sync Topics
         topics = Topic.objects.prefetch_related('topic_tags').all()
         for topic in topics:
             tags = [tt.tag for tt in topic.topic_tags.all()]
             if tags:
-                TagSource.objects.update_or_create(
+                obj, created = TagSource.objects.update_or_create(
                     source_type='Topic',
                     source_id=str(topic.id),
                     defaults={
@@ -28,6 +29,7 @@ class TagSyncService:
                         'tags': tags
                     }
                 )
+                valid_ids.append(obj.id)
                 total_processed += 1
         
         # Sync Thoughts
@@ -35,7 +37,7 @@ class TagSyncService:
         for thought in thoughts:
             tags = [tt.tag for tt in thought.thought_tags.all()]
             if tags:
-                TagSource.objects.update_or_create(
+                obj, created = TagSource.objects.update_or_create(
                     source_type='Thought',
                     source_id=str(thought.id),
                     defaults={
@@ -43,6 +45,7 @@ class TagSyncService:
                         'tags': tags
                     }
                 )
+                valid_ids.append(obj.id)
                 total_processed += 1
 
         # Sync Quotes
@@ -50,7 +53,7 @@ class TagSyncService:
         for quote in quotes:
             tags = [qt.tag for qt in quote.quote_tags.all()]
             if tags:
-                TagSource.objects.update_or_create(
+                obj, created = TagSource.objects.update_or_create(
                     source_type='Quote',
                     source_id=str(quote.id),
                     defaults={
@@ -58,6 +61,7 @@ class TagSyncService:
                         'tags': tags
                     }
                 )
+                valid_ids.append(obj.id)
                 total_processed += 1
 
         # Sync Passages
@@ -65,7 +69,7 @@ class TagSyncService:
         for passage in passages:
             tags = [pt.tag for pt in passage.passage_tags.all()]
             if tags:
-                TagSource.objects.update_or_create(
+                obj, created = TagSource.objects.update_or_create(
                     source_type='Passage',
                     source_id=str(passage.id),
                     defaults={
@@ -73,7 +77,14 @@ class TagSyncService:
                         'tags': tags
                     }
                 )
+                valid_ids.append(obj.id)
                 total_processed += 1
         
+        # Cleanup Orphans
+        # Any TagSource not in valid_ids should be deleted (source no longer exists or has no tags)
+        deleted_count, _ = TagSource.objects.exclude(id__in=valid_ids).delete()
+        if deleted_count > 0:
+            logger.info(f"Removed {deleted_count} orphaned TagSource records.")
+
         logger.info(f"Tag Sync Completed. Processed {total_processed} records.")
         return total_processed
