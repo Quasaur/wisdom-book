@@ -14,8 +14,20 @@ class StartHerePageAdmin(admin.ModelAdmin):
     
     class Media:
         css = {
-            'all': ('starthere_app/css/admin_overrides.css',)
+            'all': (
+                'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css',
+                'starthere_app/css/admin_overrides.css',
+            )
         }
+        js = (
+            'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js',
+            'starthere_app/js/enable_codemirror.js',
+        )
     
     def has_add_permission(self, request):
         # Disable add permission if an instance already exists
