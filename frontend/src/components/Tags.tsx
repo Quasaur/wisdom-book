@@ -244,7 +244,7 @@ const Tags: React.FC = () => {
         <div id="TG_Card_01" className="w-1/3 bg-card-bg rounded-2xl p-6 shadow-md border border-yellow-400 flex flex-col h-full">
             {/* Search Header */}
             <div className="mb-4">
-                <h2 className="text-xl font-bold mt-0">TAGS</h2>
+                <h2 className="card-title">TAGS</h2>
                 <div className="relative">
                     <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                     <input
@@ -354,7 +354,7 @@ const Tags: React.FC = () => {
                     <div className="pb-4 border-b border-gray-700 mb-4">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-xl font-bold mt-0">ITEMS</h2>
+                                <h2 className="card-title">ITEMS</h2>
                             </div>
                             <span className="text-gray-400 text-sm">{filteredSources.length} items</span>
                         </div>
@@ -434,7 +434,7 @@ const Tags: React.FC = () => {
                 <div className="h-full flex flex-col">
                     <div className="pb-4 border-b border-gray-700 mb-4 flex justify-between items-center">
                         <div>
-                            <h2 className="text-xl font-bold mt-0">CONTENT / DESCRIPTION</h2>
+                            <h2 className="card-title">CONTENT / DESCRIPTION</h2>
                         </div>
                         <div>
                             <select

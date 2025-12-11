@@ -102,7 +102,7 @@ const Topics: React.FC = () => {
     const T_Card_01 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Topics</h2>
+                <h2 className="card-title">Topics</h2>
                 <p className="font-bold text-sm text-text-secondary mt-1 mb-0">Select a row to view its Details.</p>
             </div>
             <div className="px-4 pb-4 pt-2">
@@ -168,7 +168,7 @@ const Topics: React.FC = () => {
     const T_Card_02 = (
         <div className="card !p-0 overflow-hidden flex-1 h-fit sticky top-0">
             <div className="px-4 py-2 border-b border-border-color text-center">
-                <h2 className="text-xl font-bold mt-0">Selected Topic Detail</h2>
+                <h2 className="card-title">Selected Topic Detail</h2>
             </div>
             <div className="px-6 pb-6 pt-3">
                 {selectedTopic ? (

@@ -33,6 +33,10 @@
     @apply bg-card-bg rounded-2xl p-12 shadow-md mb-6 border border-yellow-400;
   }
 
+  .card-title {
+    @apply text-xl font-bold mt-0 text-center uppercase;
+  }
+
   /* Details Table Styles */
   .details-table-container {
     @apply overflow-x-auto border border-blue-300 rounded-lg;
