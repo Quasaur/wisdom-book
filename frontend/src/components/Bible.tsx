@@ -25,6 +25,9 @@ interface Passage {
     neo4j_id: string;
     contents: Content[];
     tags: string[];
+    level?: number;
+    parent?: number;
+    parent_title?: string;
 }
 
 const Bible: React.FC = () => {
@@ -35,6 +38,7 @@ const Bible: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
 
     useEffect(() => {
         const fetchPassages = async () => {
@@ -64,11 +68,18 @@ const Bible: React.FC = () => {
         fetchPassages();
     }, []);
 
-    // Filter passages based on search query
+    // Filter passages based on search query and sort
     const filteredPassages = passages.filter(passage =>
         passage.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         passage.book.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ).sort((a, b) => {
+        // Sort by level first (ascending)
+        if (a.level !== b.level) {
+            return (a.level || 0) - (b.level || 0);
+        }
+        // Then by title (ascending) for consistent ordering
+        return a.title.localeCompare(b.title);
+    });
 
     // Calculate pagination
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -110,8 +121,8 @@ const Bible: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic">
-                                <th className="p-3 font-semibold">Passage</th>
-                                <th className="p-3 font-semibold">Book</th>
+                                <th className="py-1.5 px-3 font-semibold w-24">Level</th>
+                                <th className="py-1.5 px-3 font-semibold">Passage</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,8 +137,8 @@ const Bible: React.FC = () => {
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
                                     >
-                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{passage.title}</td>
-                                        <td className="p-3 border-b border-border-color">{passage.book || '-'}</td>
+                                        <td className={`py-1.5 px-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{passage.level || 0}</td>
+                                        <td className="py-1.5 px-3 border-b border-border-color">{passage.title}</td>
                                     </tr>
                                 );
                             })}
@@ -175,8 +186,9 @@ const Bible: React.FC = () => {
                     <div className="space-y-4 text-gray-300">
                         <div>
                             <h3 className="text-lg font-semibold text-accent">{selectedPassage.title}</h3>
+                            <p className="text-sm text-yellow-500 font-mono mt-0.5">Level: {selectedPassage.level || 0}</p>
                             {selectedPassage.book && (
-                                <p className="text-sm text-text-secondary italic">
+                                <p className="text-sm text-text-secondary italic mt-1">
                                     {selectedPassage.book} {selectedPassage.chapter}:{selectedPassage.verse}
                                 </p>
                             )}
@@ -203,9 +215,12 @@ const Bible: React.FC = () => {
                                                 <span className="details-label-text">Status:</span> {selectedPassage.is_active ? 'Active' : 'Inactive'}
                                             </td>
                                         </tr>
-                                        <tr className="bg-primary-bg/30 transition-colors duration-200 hover:bg-accent-bg/50">
-                                            <td className="details-cell-label" colSpan={2}>
+                                        <tr className="bg-primary-bg/30 transition-colors duration-200 hover:bg-accent-bg/50 border-t border-border-color">
+                                            <td className="details-cell-label w-1/2">
                                                 <span className="details-label-text">Source:</span> {selectedPassage.source}
+                                            </td>
+                                            <td className="details-cell-value w-1/2">
+                                                <span className="details-label-text">Parent Topic:</span> {selectedPassage.parent_title || <span className="text-gray-500 italic">None</span>}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -227,41 +242,76 @@ const Bible: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Content Table */}
-                        {selectedPassage.contents && selectedPassage.contents.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="content-section-header">Content</h4>
-                                <div className="content-table-container">
-                                    <table className="content-table">
-                                        <thead>
-                                            <tr className="content-table-head-row">
-                                                <th className="content-table-th w-24">Language</th>
-                                                <th className="content-table-th w-48">Title</th>
-                                                <th className="content-table-th">Content</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {[
-                                                { lang: 'English', title: selectedPassage.contents[0].en_title, content: selectedPassage.contents[0].en_content },
-                                                { lang: 'Spanish', title: selectedPassage.contents[0].es_title, content: selectedPassage.contents[0].es_content },
-                                                { lang: 'French', title: selectedPassage.contents[0].fr_title, content: selectedPassage.contents[0].fr_content },
-                                                { lang: 'Hindi', title: selectedPassage.contents[0].hi_title, content: selectedPassage.contents[0].hi_content },
-                                                { lang: 'Chinese', title: selectedPassage.contents[0].zh_title, content: selectedPassage.contents[0].zh_content },
-                                            ].map((row, index) => (
-                                                <tr
-                                                    key={index}
-                                                    className={index % 2 === 1 ? 'content-table-row-odd' : 'content-table-row-even'}
-                                                >
-                                                    <td className="content-table-cell font-medium align-top">{row.lang}</td>
-                                                    <td className="content-table-cell align-top">{row.title}</td>
-                                                    <td className="content-table-cell">{row.content}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                        {/* Content Section with Language Dropdown */}
+                        <div className="mt-6">
+                            <h4 className="content-section-header mb-2">Content</h4>
+                            {selectedPassage.contents && selectedPassage.contents.length > 0 ? (
+                                <div className="border border-blue-300 rounded-lg p-4 space-y-4 relative">
+                                    <div className="flex justify-end mb-2">
+                                        <select
+                                            value={selectedLanguage}
+                                            onChange={(e) => setSelectedLanguage(e.target.value)}
+                                            className="bg-gray-800 border border-yellow-400 text-gray-200 text-sm rounded px-3 py-1 focus:outline-none focus:border-accent cursor-pointer"
+                                        >
+                                            <option value="en">English</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="hi">Hindi</option>
+                                            <option value="zh">Chinese</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Link local variables for cleaner render logic */}
+                                    {(() => {
+                                        const contentObj = selectedPassage.contents[0];
+                                        let title = contentObj.en_title;
+                                        let content = contentObj.en_content;
+
+                                        switch (selectedLanguage) {
+                                            case 'es':
+                                                title = contentObj.es_title;
+                                                content = contentObj.es_content;
+                                                break;
+                                            case 'fr':
+                                                title = contentObj.fr_title;
+                                                content = contentObj.fr_content;
+                                                break;
+                                            case 'hi':
+                                                title = contentObj.hi_title;
+                                                content = contentObj.hi_content;
+                                                break;
+                                            case 'zh':
+                                                title = contentObj.zh_title;
+                                                content = contentObj.zh_content;
+                                                break;
+                                            default:
+                                                title = contentObj.en_title;
+                                                content = contentObj.en_content;
+                                        }
+
+                                        return (
+                                            <>
+                                                <div className="bg-primary-bg/40 p-3 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Title</span>
+                                                    <div className="text-gray-100 font-medium text-lg pr-4 pt-1">
+                                                        {title || <span className="text-gray-500 italic text-sm">No title available</span>}
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-primary-bg/40 p-4 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors min-h-[100px]">
+                                                    <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Content</span>
+                                                    <div className="text-gray-300 text-sm leading-normal pt-1">
+                                                        {content || <span className="text-gray-500 italic text-sm">No content available</span>}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="text-text-secondary italic">No content available for this passage.</div>
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <div className="text-text-secondary italic">Select a passage to view details</div>

@@ -15,6 +15,10 @@ class Passage(models.Model):
     
     # Additional Django-specific fields
     is_active = models.BooleanField(default=True)
+    level = models.IntegerField(default=0)
+    parent = models.ForeignKey('topics_app.Topic', on_delete=models.SET_NULL, 
+                              null=True, blank=True, related_name='passages')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_synced = models.DateTimeField(auto_now=True,

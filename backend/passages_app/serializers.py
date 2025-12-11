@@ -15,10 +15,11 @@ class PassageContentSerializer(serializers.ModelSerializer):
 class PassageSerializer(serializers.ModelSerializer):
     contents = PassageContentSerializer(many=True, read_only=True)
     tags = serializers.SerializerMethodField()
+    parent_title = serializers.CharField(source='parent.title', read_only=True, allow_null=True)
 
     class Meta:
         model = Passage
-        fields = ['id', 'title', 'book', 'chapter', 'verse', 'source', 'slug', 'is_active', 'neo4j_id', 'contents', 'tags']
+        fields = ['id', 'title', 'book', 'chapter', 'verse', 'source', 'slug', 'is_active', 'neo4j_id', 'contents', 'tags', 'level', 'parent', 'parent_title']
 
     def get_tags(self, obj):
         return [t.tag for t in obj.passage_tags.all()]

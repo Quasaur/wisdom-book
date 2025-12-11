@@ -51,11 +51,11 @@
   }
 
   .details-cell-label {
-    @apply p-3 border-r border-border-color break-words whitespace-normal;
+    @apply py-1.5 px-3 border-r border-border-color break-words whitespace-normal;
   }
 
   .details-cell-value {
-    @apply p-3 break-words whitespace-normal;
+    @apply py-1.5 px-3 break-words whitespace-normal;
   }
 
   .details-label-text {
@@ -93,7 +93,7 @@
   }
 
   .content-table-th {
-    @apply p-3 font-semibold;
+    @apply py-2 px-3 font-semibold;
   }
 
   .content-table-row-odd {
@@ -105,7 +105,7 @@
   }
 
   .content-table-cell {
-    @apply p-3 border-b border-border-color;
+    @apply py-2 px-3 border-b border-border-color;
   }
 }
 

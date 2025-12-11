@@ -109,8 +109,8 @@ const Thoughts: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-accent-bg text-text-secondary border-b-2 border-gray-600 italic">
-                                <th className="p-3 font-semibold">Thought Level</th>
-                                <th className="p-3 font-semibold">Thought Name</th>
+                                <th className="py-1.5 px-3 font-semibold">Thought Level</th>
+                                <th className="py-1.5 px-3 font-semibold">Thought Name</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,8 +125,8 @@ const Thoughts: React.FC = () => {
                                             : index % 2 === 1 ? 'bg-primary-bg/30' : ''
                                             }`}
                                     >
-                                        <td className={`p-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{thought.level}</td>
-                                        <td className="p-3 border-b border-border-color">{thought.title}</td>
+                                        <td className={`py-1.5 px-3 border-b border-border-color ${isSelected ? 'border-l-0' : ''}`}>{thought.level}</td>
+                                        <td className="py-1.5 px-3 border-b border-border-color">{thought.title}</td>
                                     </tr>
                                 );
                             })}
@@ -289,7 +289,7 @@ const Thoughts: React.FC = () => {
 
                                                 <div className="bg-primary-bg/40 p-4 rounded-lg border border-blue-500/30 shadow-sm relative group hover:border-blue-400/50 transition-colors min-h-[100px]">
                                                     <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] text-blue-300 bg-blue-900/40 rounded-bl rounded-tr uppercase tracking-wider">Content</span>
-                                                    <div className="text-gray-300 leading-relaxed pt-1">
+                                                    <div className="text-gray-300 text-sm leading-normal pt-1">
                                                         {content || <span className="text-gray-500 italic text-sm">No content available</span>}
                                                     </div>
                                                 </div>

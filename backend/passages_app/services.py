@@ -27,14 +27,17 @@ class PassagesService:
         try:
             query = """
             MATCH (p:PASSAGE)
+            OPTIONAL MATCH (t:TOPIC)-[:HAS_PASSAGE]->(p)
             OPTIONAL MATCH (p)-[:HAS_CONTENT]->(c:CONTENT)
             RETURN p.name as id, 
                    p.alias as title, 
                    p.book as book,
                    p.chapter as chapter,
                    p.verse as verse,
+                   p.level as level,
                    p.source as source,
                    p.tags as tags,
+                   t.name as parent_id,
                    collect({
                        id: c.name, 
                        content: coalesce(c.en_content, ''),
@@ -81,6 +84,16 @@ class PassagesService:
         if not neo4j_id:
             return
         
+        # Resolve parent topic if available
+        parent_id = passage_data.get('parent_id')
+        parent_topic = None
+        if parent_id:
+            from topics_app.models import Topic
+            try:
+                parent_topic = Topic.objects.get(neo4j_id=parent_id)
+            except Topic.DoesNotExist:
+                logger.warning(f"Parent topic {parent_id} not found for passage {neo4j_id}")
+        
         passage, created = Passage.objects.update_or_create(
             neo4j_id=neo4j_id,
             defaults={
@@ -89,6 +102,8 @@ class PassagesService:
                 'chapter': passage_data.get('chapter') or '',
                 'verse': passage_data.get('verse') or '',
                 'source': passage_data.get('source') or '',
+                'level': passage_data.get('level') or 0,
+                'parent': parent_topic,
                 'last_synced': timezone.now(),
             }
         )
