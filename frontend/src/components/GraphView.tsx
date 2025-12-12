@@ -243,13 +243,13 @@ const GraphView: React.FC = () => {
     }, [filteredData]); // Re-run when filtered data changes
 
     return (
-        <div className="container mx-auto !p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
+        <div className="w-full h-full p-4">
+            <div className="flex flex-col lg:flex-row gap-4 h-full">
 
                 {/* GV_Card_01: Graph View (75%) */}
                 <div className="GV_Card_01 w-full lg:w-3/4 card p-4 flex flex-col">
                     <div className="flex flex-col items-center mb-4 gap-4">
-                        <h1 className="text-xl font-bold text-gray-100 text-center w-full">Graph View</h1>
+                        <h1 className="text-xl font-bold text-gray-100 text-center w-full m-0">Graph View</h1>
 
                         {/* Legend / Filter Buttons */}
                         <div className="flex flex-wrap gap-2 justify-center">
@@ -297,9 +297,9 @@ const GraphView: React.FC = () => {
 
                 {/* GV_Card_02: Node Detail (25%) */}
                 <div className="GV_Card_02 w-full lg:w-1/4 card !p-0 flex flex-col">
-                    {/* Header: px-4 py-2 matches T_Card_02 padding. border-b matches T_Card_02 style. */}
+                    {/* Header: px-4 py-2. Using card-title class + m-0 to override base h2 margins. */}
                     <div className="px-4 py-2 border-b border-gray-700 flex flex-col items-center">
-                        <h2 className="text-xl font-bold text-gray-100 text-center w-full">Node Detail</h2>
+                        <h2 className="card-title text-gray-100 w-full m-0">Node Detail</h2>
                     </div>
 
                     <div className="p-4 flex-grow overflow-y-auto">
