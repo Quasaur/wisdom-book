@@ -89,28 +89,54 @@ const GraphView: React.FC = () => {
 
         if (selectedType === 'ALL') {
             setFilteredData(fullData);
-        } else {
-            // Filter nodes by type
-            const nodes = fullData.nodes.filter(n => n.type === selectedType);
+        } else if (selectedType === 'TOPIC') {
+            // Strict filtering for Topics: Show ONLY Topics
+            // Exclude everything else (Quotes, Thoughts, etc.) even if connected
+            const nodes = fullData.nodes.filter(n => n.type === 'TOPIC');
             const nodeIds = new Set(nodes.map(n => n.id));
 
-            // Filter links where both source and target are in the filtered nodes
-            // Note: D3 mutates links to use objects for source/target, so we need to handle both cases or ensure fresh copies
-            // Since we setFilteredData, we should probably derive from fresh fullData to avoid reference issues
-            // Ideally, we re-process fullData links
-
-            // Re-map fullData links to check against IDs. 
-            // Warning: fullData.links might have been mutated by previous D3 simulation if we passed it directly.
-            // Best practice: Deep copy for simulation usage. But here we might rely on the fact that we are creating a new object for filteredData
-
-            // Keep it simple: Filter based on IDs assuming source/target might be objects or strings
+            // Only include links between Topics (Topic -> Parent Topic)
             const links = fullData.links.filter(l => {
                 const sourceId = typeof l.source === 'object' ? (l.source as any).id : l.source;
                 const targetId = typeof l.target === 'object' ? (l.target as any).id : l.target;
                 return nodeIds.has(sourceId) && nodeIds.has(targetId);
             });
 
-            setFilteredData({ nodes: nodes.map(n => ({ ...n })), links: links.map(l => ({ ...l })) });
+            setFilteredData({
+                nodes: nodes.map(n => ({ ...n })),
+                links: links.map(l => ({ ...l }))
+            });
+        } else {
+            // Parent-Inclusive Logic for others (Thoughts, Quotes, etc.)
+            // 1. Identify primary nodes based on selected type
+            const primaryNodes = fullData.nodes.filter(n => n.type === selectedType);
+            const primaryNodeIds = new Set(primaryNodes.map(n => n.id));
+            const includedNodeIds = new Set(primaryNodeIds);
+
+            // 2. Find links connected to primary nodes and include neighbor/parent
+            const relevantLinks = fullData.links.filter(l => {
+                const sourceId = typeof l.source === 'object' ? (l.source as any).id : l.source;
+                const targetId = typeof l.target === 'object' ? (l.target as any).id : l.target;
+
+                return primaryNodeIds.has(sourceId) || primaryNodeIds.has(targetId);
+            });
+
+            // 3. Add connected nodes to the set
+            relevantLinks.forEach(l => {
+                const sourceId = typeof l.source === 'object' ? (l.source as any).id : l.source;
+                const targetId = typeof l.target === 'object' ? (l.target as any).id : l.target;
+
+                includedNodeIds.add(sourceId);
+                includedNodeIds.add(targetId);
+            });
+
+            // 4. Construct filtered dataset
+            const nodes = fullData.nodes.filter(n => includedNodeIds.has(n.id));
+
+            setFilteredData({
+                nodes: nodes.map(n => ({ ...n })),
+                links: relevantLinks.map(l => ({ ...l }))
+            });
         }
     }, [selectedType, fullData]);
 
@@ -222,11 +248,11 @@ const GraphView: React.FC = () => {
 
                 {/* GV_Card_01: Graph View (75%) */}
                 <div className="GV_Card_01 w-full lg:w-3/4 card p-4 flex flex-col">
-                    <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-                        <h1 className="text-xl font-bold text-gray-100">Graph View</h1>
+                    <div className="flex flex-col items-center mb-4 gap-4">
+                        <h1 className="text-xl font-bold text-gray-100 text-center w-full">Graph View</h1>
 
                         {/* Legend / Filter Buttons */}
-                        <div className="flex flex-wrap gap-2 justify-end">
+                        <div className="flex flex-wrap gap-2 justify-center">
                             {filterButtons.map((btn) => (
                                 <button
                                     key={btn.id}
@@ -234,8 +260,8 @@ const GraphView: React.FC = () => {
                                     onClick={() => setSelectedType(btn.type)}
                                     disabled={selectedType === btn.type}
                                     className={`px-3 py-1 rounded-full text-xs font-medium transition-opacity ${selectedType === btn.type
-                                            ? 'opacity-50 cursor-not-allowed ring-2 ring-white'
-                                            : 'hover:opacity-80'
+                                        ? 'opacity-50 cursor-not-allowed ring-2 ring-white'
+                                        : 'hover:opacity-80'
                                         }`}
                                     style={{
                                         backgroundColor: btn.color,
@@ -270,52 +296,68 @@ const GraphView: React.FC = () => {
                 </div>
 
                 {/* GV_Card_02: Node Detail (25%) */}
-                <div className="GV_Card_02 w-full lg:w-1/4 card p-4 flex flex-col">
-                    <h2 className="text-xl font-bold text-gray-100 mb-4">Node Detail</h2>
+                <div className="GV_Card_02 w-full lg:w-1/4 card !p-0 flex flex-col">
+                    {/* Header: p-4 matches GV_Card_01 padding. border-b matches T_Card_02 style. */}
+                    <div className="p-4 border-b border-gray-700 flex flex-col items-center gap-4">
+                        <h2 className="text-xl font-bold text-gray-100 text-center w-full">Node Detail</h2>
+                    </div>
 
-                    {nodeDetail ? (
-                        <div className="flex flex-col gap-4 text-gray-300">
-                            <div>
-                                <span className="text-xs text-gray-500 uppercase">Type</span>
-                                <div className="font-medium text-white" style={{ color: colorScale[nodeDetail.type] }}>
-                                    {nodeDetail.type}
-                                </div>
+                    <div className="p-4 flex-grow overflow-y-auto">
+                        {nodeDetail ? (
+                            <div className="details-table-container">
+                                <table className="details-table w-full">
+                                    <tbody>
+                                        <tr className="details-row-odd">
+                                            <td className="details-cell-label w-1/3">
+                                                <span className="details-label-text">Type:</span>
+                                            </td>
+                                            <td className="details-cell-value">
+                                                <span style={{ color: colorScale[nodeDetail.type] }} className="font-bold">{nodeDetail.type}</span>
+                                            </td>
+                                        </tr>
+                                        <tr className="details-row-even">
+                                            <td className="details-cell-label">
+                                                <span className="details-label-text">Name:</span>
+                                            </td>
+                                            <td className="details-cell-value">
+                                                {nodeDetail.name}
+                                            </td>
+                                        </tr>
+                                        {nodeDetail.id && (
+                                            <tr className="details-row-odd">
+                                                <td className="details-cell-label">
+                                                    <span className="details-label-text">ID:</span>
+                                                </td>
+                                                <td className="details-cell-value font-mono text-xs">
+                                                    {nodeDetail.id}
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {nodeDetail.labels && nodeDetail.labels.length > 0 && (
+                                            <tr className="details-row-even">
+                                                <td className="details-cell-label">
+                                                    <span className="details-label-text">Labels:</span>
+                                                </td>
+                                                <td className="details-cell-value">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {nodeDetail.labels.map((l: string, i: number) => (
+                                                            <span key={i} className="bg-gray-700 px-2 py-0.5 rounded text-xs">
+                                                                {l}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
-
-                            <div>
-                                <span className="text-xs text-gray-500 uppercase">Name/Title</span>
-                                <div className="font-lg text-white break-words">
-                                    {nodeDetail.name}
-                                </div>
+                        ) : (
+                            <div className="text-gray-500 italic text-center mt-10">
+                                Click on a node to view details
                             </div>
-
-                            {nodeDetail.labels && (
-                                <div>
-                                    <span className="text-xs text-gray-500 uppercase">Labels</span>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                        {nodeDetail.labels.map((l: string, i: number) => (
-                                            <span key={i} className="bg-gray-700 px-2 py-0.5 rounded text-xs">
-                                                {l}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {nodeDetail.id && (
-                                <div>
-                                    <span className="text-xs text-gray-500 uppercase">ID</span>
-                                    <div className="text-xs font-mono bg-gray-900 p-1 rounded break-all">
-                                        {nodeDetail.id}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="text-gray-500 italic text-center mt-10">
-                            Click on a node to view details
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
