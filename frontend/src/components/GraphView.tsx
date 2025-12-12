@@ -244,7 +244,7 @@ const GraphView: React.FC = () => {
 
     return (
         <div className="container mx-auto !p-4">
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-4">
 
                 {/* GV_Card_01: Graph View (75%) */}
                 <div className="GV_Card_01 w-full lg:w-3/4 card p-4 flex flex-col">
@@ -297,8 +297,8 @@ const GraphView: React.FC = () => {
 
                 {/* GV_Card_02: Node Detail (25%) */}
                 <div className="GV_Card_02 w-full lg:w-1/4 card !p-0 flex flex-col">
-                    {/* Header: p-4 matches GV_Card_01 padding. border-b matches T_Card_02 style. */}
-                    <div className="p-4 border-b border-gray-700 flex flex-col items-center gap-4">
+                    {/* Header: px-4 py-2 matches T_Card_02 padding. border-b matches T_Card_02 style. */}
+                    <div className="px-4 py-2 border-b border-gray-700 flex flex-col items-center">
                         <h2 className="text-xl font-bold text-gray-100 text-center w-full">Node Detail</h2>
                     </div>
 
